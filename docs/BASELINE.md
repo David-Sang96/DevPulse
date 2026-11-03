@@ -48,4 +48,4 @@ These are the hashes of the six files as reviewed, taken before the BL-01 row wa
 
 ## Baseline commit
 
-Not made yet. Task 1.1 makes the baseline commit, checks each committed file with Git Bash `git cat-file blob <commit>:<file> | sha256sum`, and then appends the commit hash here, on the `chunk-01-toolchain` branch. From then on, git is the record.
+`1121f49495a337bb74f9704bc1cfec073937fd5c` on `main`, made on 2026-11-03 at 18:32:35 (+08:00). Every committed baseline blob matched its recorded hash, checked with Git Bash `git cat-file blob <commit>:<file> | sha256sum`. From then on, git is the record.
