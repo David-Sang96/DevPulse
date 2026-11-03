@@ -869,3 +869,10 @@ A record of what has actually run. The task steps above stay unticked here; Task
   - No network monitor ran, so "no request in Step 7" rests on Corepack's cache, the `COREPACK_ENABLE_NETWORK=0` run and the unchanged user folders.
   - `scripts/check-node.mjs` has not been linted or typechecked; ESLint and TypeScript aren't installed yet.
   - David's checks in a new terminal of David's own are Task 5, Step 4.
+
+### 2026-11-03: D2 resolved, `@types/node` ^24 (David's decision)
+
+- **Decision:** David approved changing `@types/node` from `^20` to `^24`, to match the pinned Node.js 24.13.0. No other dependency version changes.
+- **Change:** `8f619d8 build: use @types/node ^24 to match Node.js 24.13.0 (David's decision D2)`. Only `devDependencies["@types/node"]` changed in `package.json`, a one-line diff. Nothing was installed.
+- **Documentation:** no instruction in this plan or the spec names `@types/node`, so this record is the only documentation change. Like the other execution decisions in this record, it isn't yet in the REQUIREMENTS decision log: the task 1.5 allow-list forbids baseline edits before Task 6.
+- **Next:** the G-3 review (Task 4, Step 1), with no install until David approves G-3.
