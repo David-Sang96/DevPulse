@@ -753,3 +753,63 @@ A record of what has actually run. The task steps above stay unticked here; Task
   - remove `postcss.config.mjs` from the file table; keep the generated `@tailwindcss/turbopack` setup and create no PostCSS configuration;
   - don't reset, delete or modify the user-level preferences file.
 - **Next:** Task 2, Steps 4–9, approved by David; Task 3 is not approved yet.
+
+### 2026-11-03: Task 2, Steps 4–9 (roadmap 1.2), complete
+
+- **Approval:** David approved Task 2, Steps 4–9 with the G-1b.2 decisions, then accepted the implementation and commit `d7ae49a`.
+- **Execution:** each step ran in one guarded shell (guard, `BOOT`/`CLEAN`, assertion line, then the step's commands), on `chunk-01-toolchain`.
+- **Documentation commit first:** `98e4658` (plan changes and the G-1b.2 record).
+- **Step 4, privacy test:** `grep -rIl "next/font/google" "$TMP/devpulse/src"` printed `src/app/layout.tsx`, the expected failing result.
+- **Before Step 5, read-only checks:**
+  - CR bytes: `package.json` ended with one CRLF; every other text file had none.
+  - The scaffold's `.gitignore` repeats several Task 1 lines: `.env*`, `.yarn/*`, the `!.yarn/...` exceptions and `.pnp.*`. Appended after Task 1's exceptions, `.env*` and `.yarn/*` would re-ignore `.env.example` and `.yarn/sdks`.
+- **Step 5, cleanup in `$TMP/devpulse`:**
+  - A Node script made exact-match edits, each required to match exactly once, with every check run before anything was written.
+  - `src/app/layout.tsx`: removed the `next/font/google` import, the `Geist` and `Geist_Mono` font variables and their class names. The `<html>` tag became `<html lang="en" className="h-full antialiased">`.
+  - `src/app/globals.css`: removed `--font-sans: var(--font-geist-sans);` and `--font-mono: var(--font-geist-mono);`.
+  - `next.config.ts`: removed `cacheComponents: true` and `partialPrefetching: true` (David's decision); kept the `@tailwindcss/turbopack` rule; no PostCSS configuration was created.
+  - `package.json`: the final CRLF became LF. The name was already `devpulse`.
+  - Deleted `README.md` and `AGENTS.md`. `CLAUDE.md` and `.yarnrc.yml` were not emitted.
+- **Step 6, checks (all passed):**
+  - Step 4's grep prints nothing, and no `geist` reference remains in `src`;
+  - `package.json` name is `devpulse`;
+  - `tsconfig.json` has `"strict": true`, and `paths` maps `@/*` to `./src/*`;
+  - `tailwindcss` is `^4` in `devDependencies`, and `globals.css` contains `@import "tailwindcss"`;
+  - `next.config.ts` contains neither `cacheComponents` nor `partialPrefetching`, and keeps the `@tailwindcss/turbopack` rule;
+  - there is no `postcss.config.mjs`;
+  - `README.md`, `AGENTS.md`, `CLAUDE.md` and `.yarnrc.yml` are absent;
+  - no scaffold text file contains a CR.
+- **Cleaned scaffold (15 files):** `.gitignore`, `eslint.config.mjs`, `next-env.d.ts`, `next.config.ts`, `package.json`, `public/file.svg`, `public/globe.svg`, `public/next.svg`, `public/vercel.svg`, `public/window.svg`, `src/app/favicon.ico`, `src/app/globals.css`, `src/app/layout.tsx`, `src/app/page.tsx`, `tsconfig.json`.
+- **Step 7, merge:**
+  - **Pre-checks:** the working tree was clean, and none of the 14 files to copy already existed in the repository.
+  - **Copied** with `cp -n`, each confirmed byte-identical with `cmp`: `eslint.config.mjs`, `next-env.d.ts`, `next.config.ts`, `package.json`, the five `public/*.svg` files, `src/app/favicon.ico`, `src/app/globals.css`, `src/app/layout.tsx`, `src/app/page.tsx` and `tsconfig.json`.
+  - **`.gitignore` merged by hand, 47 lines:**
+    - Task 1's 16 lines come first, byte-for-byte, then the scaffold's other lines and their comments.
+    - Dropped as exact duplicates: `.env*`, `.yarn/*`, `!.yarn/patches`, `!.yarn/plugins`, `!.yarn/releases`, `!.yarn/versions` and `.pnp.*`, plus the emptied `# env files` comment.
+    - Also dropped: `/node_modules` and `/.next/`, which Task 1's `node_modules/` and `.next/` already cover.
+  - **Merge checks:** no CR; no duplicate non-comment lines; every added line comes from the scaffold.
+  - **Ignore checks** (`git check-ignore --no-index`):
+    - ignored: `node_modules/`, `.next/`, `data/`, `.env.local`, `next-env.d.ts`, `*.tsbuildinfo`, `.yarn/cache/`, `out/` and `coverage/`;
+    - not ignored: `.env.example`, `.yarn/releases/`, `.yarn/sdks/`, `.yarn/patches/`, `package.json` and `src/app/page.tsx`.
+  - **`next-env.d.ts`:** copied but ignored, as spec 6.2 intends, so it is not committed.
+- **Step 8, merge check (passed):**
+  - `git status --porcelain` showed `.gitignore` as modified (`M`) plus `??` entries only: `eslint.config.mjs`, `next.config.ts`, `package.json`, `public/`, `src/` and `tsconfig.json`. With `-uall`, those are the 13 files listed under Step 9.
+  - `git diff --stat`: `.gitignore | 31 +++…`, 1 file changed, 31 insertions.
+- **Step 9, commit:** `d7ae49a feat: scaffold the Next.js app (task 1.2)`, 14 files changed, 237 insertions.
+  - The commit holds `.gitignore`, `eslint.config.mjs`, `next.config.ts`, `package.json`, the five `public/*.svg` files, `src/app/favicon.ico`, `src/app/globals.css`, `src/app/layout.tsx`, `src/app/page.tsx` and `tsconfig.json`.
+  - The commit body holds the emitted-file list, the cleanup and merge notes, and the trailer.
+- **After the commit:**
+  - the working tree was clean; the only ignored file present was `next-env.d.ts`;
+  - no committed text blob contains a CR;
+  - the Task 5 checker's SHA-256 matched, and it printed `OK` for each of the six baseline files, then `BASELINE DIFF OK`;
+  - there was no `node_modules` in the repository; `main` is still `1121f49`; no remote.
+- **Effects:**
+  - No dependencies were installed, and Steps 4–9 made no network requests.
+  - The user-level preferences file (`%APPDATA%\create-next-app-nodejs\Config\config.json`) was not modified after G-1b.2; its modification time is still 19:00:49.
+  - The cleaned scaffold remains in `$TMP/devpulse`, which has not been deleted.
+- **Unverified:**
+  - `yarn typecheck`, `yarn lint`, `yarn test` and `yarn build` have not run, and can't until the toolchain and dependencies exist (Tasks 3–4).
+  - So the scaffold has not been typechecked, linted, built or run, and the Tailwind-through-Turbopack setup is untested.
+  - `src/app/page.tsx` is still the template's placeholder page, including its Vercel and Next.js links with tracking parameters. These are plain links, not outbound requests, but the page content has not been reviewed against DevPulse's rules.
+  - The roadmap is not updated yet (Task 6).
+- **Next:** Task 3 (roadmap 1.3, including go-ahead G-2), which is **not approved yet**.
