@@ -126,7 +126,7 @@
 | `.gitignore` | 1, merged in 2, extended in 4 | Ignore set (spec 6.2) |
 | `docs/BASELINE.md` | 1 | Records the baseline commit hash |
 | Roadmap, README.md, CLAUDE.md | 1 (allowed lines only), 6 | Status |
-| Scaffold files (`package.json`, `tsconfig.json`, `next.config.ts`, `postcss.config.mjs`, `eslint.config.mjs`, `src/app/*`, `public/*`; exact list recorded) | 2 | The Next.js app |
+| Scaffold files (`package.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs`, `src/app/*`, `public/*`; exact list recorded) | 2 | The Next.js app |
 | `.nvmrc`, `scripts/check-node.mjs` | 3 | Node.js pin and its check |
 | `.yarn/releases/yarn-4.12.0.cjs`, `.yarnrc.yml` | 3 | Yarn pin |
 | `yarn.lock`, `.env.yarn` | 4 | Locked dependencies; per-project telemetry switch |
@@ -375,12 +375,14 @@
   - remove the `next/font/google` import and its font variables from `src/app/layout.tsx`;
   - remove the `--font-geist-*` references from `src/app/globals.css`, so Tailwind v4's default system stacks apply;
   - delete `README.md` and any `AGENTS.md`, `CLAUDE.md` or `.yarnrc.yml`;
+  - remove `cacheComponents: true` and `partialPrefetching: true` from `next.config.ts` (David's decision after G-1b.2), keeping the generated `@tailwindcss/turbopack` rule;
   - set `"name": "devpulse"` in `package.json`.
 - [ ] **Step 6: Check the cleaned scaffold.**
   - Step 4's grep prints nothing.
   - `package.json` name is `devpulse`.
   - `tsconfig.json` has `"strict": true` and `"@/*"` in `paths`.
   - `tailwindcss` is version 4 in `devDependencies`, and `globals.css` contains `@import "tailwindcss"`.
+  - `next.config.ts` contains neither `cacheComponents` nor `partialPrefetching`, and no `postcss.config.mjs` exists.
 - [ ] **Step 7: Merge into the repository.** Copy each file that doesn't already exist in the repository (`cp -n`, never `.git/`). Merge `.gitignore` by hand: Task 1's lines first, then the scaffold's other lines, with no duplicates.
 - [ ] **Step 8: Check the merge.** Run `git status --porcelain`. Expected: only `??` additions, plus `.gitignore` shown as modified (`M`). `git diff --stat` lists only `.gitignore`.
 - [ ] **Step 9: Commit** with `feat: scaffold the Next.js app (task 1.2)`. The commit body holds the emitted-file list, and the trailer.
@@ -733,3 +735,21 @@ A record of what has actually run. The task steps above stay unticked here; Task
 - **Not added:** `--reset-preferences`. David doesn't approve clearing user-level preferences.
 - **Kept:** `--yes` and every other approved flag, and the default `--agents-md` behaviour; Task 2, Step 5 removes any `AGENTS.md`.
 - **Next:** G-1b.2 (Task 2, Step 3), which is **not approved yet**.
+
+### 2026-11-03: Task 2, Step 3 (G-1b.2), complete
+
+- **Approval:** David approved G-1b.2, temporary project scaffolding only.
+- **Command run**, through the execution procedure: `cd "$TMP" && $BOOT npx --yes create-next-app@16.4.4 devpulse --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --use-npm --skip-install --disable-git --no-agent-feedback --yes`. Exit code 0; the CLI reported the template `app-tw` and "Skipping git initialization."
+- **Emitted files (17):** `.gitignore`, `AGENTS.md`, `README.md`, `eslint.config.mjs`, `next-env.d.ts`, `next.config.ts`, `package.json`, `public/file.svg`, `public/globe.svg`, `public/next.svg`, `public/vercel.svg`, `public/window.svg`, `src/app/favicon.ico`, `src/app/globals.css`, `src/app/layout.tsx`, `src/app/page.tsx`, `tsconfig.json`.
+- **Checks:**
+  - no `$TMP/devpulse/.git`, no `node_modules`, and the repository was unchanged;
+  - `--src-dir` and the `@/*` alias applied; React Compiler off; Turbopack is the bundler;
+  - `next` 16.4.4, `react` and `react-dom` 19.3.0, `tailwindcss ^4` with `@tailwindcss/turbopack ^4`;
+  - no `postcss.config.mjs`: Tailwind v4 is wired through a Turbopack rule in `next.config.ts`;
+  - `next.config.ts` also had `cacheComponents: true` and `partialPrefetching: true`, template defaults that the command didn't request.
+- **Outside `$TMP`:** create-next-app wrote its user-level preferences file, `%APPDATA%\create-next-app-nodejs\Config\config.json`, during the run. Its earlier contents are unknown. It was left untouched.
+- **David's decisions:**
+  - remove `cacheComponents` and `partialPrefetching` in Task 2, Step 5, and use standard App Router behaviour; don't reintroduce them without explicit approval;
+  - remove `postcss.config.mjs` from the file table; keep the generated `@tailwindcss/turbopack` setup and create no PostCSS configuration;
+  - don't reset, delete or modify the user-level preferences file.
+- **Next:** Task 2, Steps 4–9, approved by David; Task 3 is not approved yet.
