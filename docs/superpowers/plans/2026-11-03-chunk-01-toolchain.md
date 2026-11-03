@@ -428,7 +428,7 @@ Steps:
   Expected: `package/bin/yarn.js` exists. If not: stop and ask.
 - [ ] **Step 6: Commit the release file, then write `.yarnrc.yml` before any `yarn` command.**
   1. Copy `package/bin/yarn.js` to `.yarn/releases/yarn-4.12.0.cjs`.
-  2. Record its SHA-256, next to Corepack's cached `%LOCALAPPDATA%\node\corepack\v1\yarn\4.12.0\yarn.js` (informational).
+  2. Record its SHA-256, next to Corepack's cached `%LOCALAPPDATA%\node\corepack\v1\yarn\4.12.0\yarn.js`. They must be equal (David's decision D1). If they differ: stop and report to David, before writing `.yarnrc.yml`. Never bypass or ignore a mismatch.
   3. Write `.yarnrc.yml`:
 
      ```yaml
@@ -813,3 +813,10 @@ A record of what has actually run. The task steps above stay unticked here; Task
   - `src/app/page.tsx` is still the template's placeholder page, including its Vercel and Next.js links with tracking parameters. These are plain links, not outbound requests, but the page content has not been reviewed against DevPulse's rules.
   - The roadmap is not updated yet (Task 6).
 - **Next:** Task 3 (roadmap 1.3, including go-ahead G-2), which is **not approved yet**.
+
+### 2026-11-03: Task 3 review decisions (David)
+
+- **D1:** the SHA-256 comparison of the downloaded Yarn 4.12.0 `yarn.js` with Corepack's cached copy is a mandatory stop condition, not informational (Task 3, Step 6). Spec 6.1 still calls it informational; this plan applies David's stricter decision.
+- **D2:** the `@types/node ^20` versus Node.js 24.13.0 question is deferred to Task 4 (G-3), and is raised again before G-3. Task 3 changes no dependency version.
+- **D3:** the Yarn extraction, the Node.js test fixtures and the scaffold in `$TMP` stay until Chunk 1 is complete; nothing deletes them automatically.
+- **Approval:** David approved Task 3, Steps 1–4; G-2 (Step 5), including its registry request for `@yarnpkg/cli-dist@4.12.0` only; and Steps 6–8. Task 4 and G-3 are not approved.
