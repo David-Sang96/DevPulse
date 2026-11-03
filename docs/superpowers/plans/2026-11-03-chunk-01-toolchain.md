@@ -105,7 +105,7 @@
 
 - Never overwrite a tracked file. Never copy `.git/`. Never use `next/font/google`.
 - No remote, no push, no merge into `main` after the baseline commit, no Windows setting, no scheduled task.
-- **Network:** only at go-aheads G-1a, G-1b, G-2 and G-3, each asked of David separately, at that moment.
+- **Network:** only at go-aheads G-1a, G-1b.1, G-1b.2, G-2 and G-3, each asked of David separately, at that moment.
 - **Telemetry boundary (Q3):** every supported Next.js invocation goes through Yarn (`yarn dev`, `yarn build`, `yarn start`, `yarn next …`), where `.env.yarn` disables telemetry. Direct invocations such as `npx next` or `node …/next` aren't covered and aren't supported. The only direct invocation in this plan is the control check in Task 4, Step 5.
 - Every commit ends with the trailer `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
 - **Stop and ask** if any expected output differs from the "Expected" line.
@@ -355,8 +355,14 @@
   2. run `$BOOT npm view create-next-app@<v> readme` and extract its documented options.
 
   Show David the exact version `<v>`, and whether these options are documented: `--ts`, `--tailwind`, `--eslint`, `--app`, `--src-dir`, `--import-alias`, `--use-npm`, `--skip-install`, `--disable-git`, `--yes`. Nothing is downloaded or run in this step.
-- [ ] **Step 2: Go-ahead G-1b, download and run.** Stop and ask David, separately, for permission to download and run exactly `create-next-app@<v>`. Only after explicit approval, run `mkdir -p "$TMP" && cd "$TMP" && $BOOT npx --yes create-next-app@<v> --help`. Record the output, and confirm every option listed in Step 1 exists. If one is missing: stop and ask.
-- [ ] **Step 3: Scaffold.**
+- [ ] **Step 2: Go-ahead G-1b.1, CLI verification.** Stop and ask David for permission to download and run exactly `create-next-app@<v>` with `--help` only.
+  - Only after explicit approval, run `mkdir -p "$TMP" && cd "$TMP" && $BOOT npx --yes create-next-app@<v> --help`.
+  - Record the output, and confirm that each of the ten options listed in Step 1 appears in it. If one is missing: stop and ask.
+  - Nothing is scaffolded in this step.
+  - Report the output and the verification results to David, then stop: scaffolding needs G-1b.2.
+- [ ] **Step 3: Go-ahead G-1b.2, scaffold.** Stop and ask David for a separate explicit approval, after David has reviewed G-1b.1's results. Only after that approval, run the block below.
+  - The scaffold is created only inside `$TMP` (`%LOCALAPPDATA%\Temp\devpulse-chunk01`), with the approved flags, including `--skip-install` and `--disable-git`.
+  - No dependency is installed, and the repository isn't touched in this step.
 
   ```bash
   case "$(declare -p DEVPULSE_GUARD_OK 2>/dev/null)" in 'declare -- DEVPULSE_GUARD_OK="1"') ;; *) echo "STOP: the guard block did not run in this shell; use the execution procedure" >&2; exit 1;; esac
@@ -703,3 +709,10 @@ A record of what has actually run. The task steps above stay unticked here; Task
   - verify all ten options with G-1b's `--help` output.
 - **Repository:** unchanged by G-1a; the status was clean before and after.
 - **Next:** G-1b (Task 2, Step 2), which is **not approved yet**.
+
+### 2026-11-03: G-1b split into two gates (David's decision)
+
+- **G-1b.1 (Task 2, Step 2):** run `npx --yes create-next-app@16.4.4 --help` in `$TMP` only, verify the ten options, and report the output. Nothing is scaffolded.
+- **G-1b.2 (Task 2, Step 3):** scaffold inside `%LOCALAPPDATA%\Temp\devpulse-chunk01` only, with the approved flags, including `--skip-install` and `--disable-git`. No install, and no repository change. It needs a separate explicit approval after David reviews G-1b.1.
+- **Wording kept:** the AD-34 rows (Task 1, Step 12, already committed) still say "a separate approval (G-1b)". That stays accurate, because G-1b is now two separate approvals. The rows are kept byte-identical because Task 5's baseline check compares them with the committed rows.
+- **Next:** G-1b.1, which is **not approved yet**.
