@@ -11,13 +11,13 @@
 | Total phases | 10 |
 | Total chunks | 36 |
 | Completed chunks | 0 |
-| In-progress chunks | 0 |
+| In-progress chunks | 1 |
 | Blocked chunks (⛔) | 5 (Chunks 12, 27, 28, 31, 32) |
 | Remaining chunks | 36 |
 | Last updated | 2026-11-03 |
 
 - **Revision:** r4 (2026-11-03), applying the independent review of r3.
-- **Roadmap start:** waiting for David's baseline approval, recorded as **BL-01** in the [REQUIREMENTS decision log](REQUIREMENTS.md#decision-log) under its baseline approval procedure.
+- **Roadmap start:** BL-01 approved by David on 2026-11-03 (see the [REQUIREMENTS decision log](REQUIREMENTS.md#decision-log)); Chunk 1 is in progress.
 - **Article simplification:** incomplete until OD-01 is approved and Chunk 32 is verified. The `none` and `fake` providers do not count.
 - **Live collection:** nothing is collected in the live checkout until retention is active: OD-04 and OD-05 resolved, and Chunk 27 complete, verified and deployed (AD-32). Real use can't begin before then, and Chunks 30, 33, 34, 35 and 36 can't complete before then. Chunk 29 itself doesn't wait for retention.
 - **Open decisions:** OD-01…OD-19 and assumptions A-01…A-06 are all Pending.
@@ -204,7 +204,7 @@ Difficulty rises phase by phase. The easier chunks inside later phases (6, 16 an
 
 **Manual verification:** Open the default page in a browser. In a fresh terminal, check the pinned versions and that telemetry is off.
 
-**Status:** Not started.
+**Status:** In progress.
 
 ### Chunk 2 — Quality tooling and test runners
 

@@ -120,6 +120,6 @@ This is what DevPulse will need once it is built:
 
 ## Development status
 
-- The planning documents were written on 2026-11-03 and revised to r4 the same day. They are waiting for David's baseline approval (BL-01).
+- The planning documents were written on 2026-11-03 and revised to r4 the same day. David approved them as the planning baseline (BL-01) on 2026-11-03.
 - No application code, dependencies or git repository exist yet.
 - The roadmap has 10 phases and 36 chunks. 5 chunks are blocked until David makes a decision. The open decisions (OD-01…OD-19) and assumptions (A-01…A-06) are listed in [REQUIREMENTS.md](docs/REQUIREMENTS.md); none has been decided yet.
