@@ -453,7 +453,16 @@ Steps:
 
 **Interfaces:** consumes Task 3's toolchain. Produces `yarn dev` on `127.0.0.1:3000`, used in Task 5.
 
-- [ ] **Step 1: Go-ahead G-3.** Stop and ask David. Then run `$BOOT yarn install`. Expected: success, and `yarn.lock` exists.
+- [ ] **Step 1: Go-ahead G-3, in two phases (David's decision D4).** The registry stays Yarn's default, `https://registry.yarnpkg.com` (D5); `.yarnrc.yml` isn't changed for it.
+  - **G-3.1, Phase 1:** stop and ask David. Only after explicit approval, run `$BOOT yarn install --mode=skip-build`. Expected: success; `yarn.lock` exists; dependencies are linked into `node_modules`; no dependency build script runs. Then inspect every resolved package for `preinstall`, `install` and `postinstall` scripts, and report to David:
+    1. the package name and exact resolved version;
+    2. each script's name and actual command;
+    3. whether Yarn scheduled the package for a build;
+    4. any script that tries to download binaries or reach external services, where the script contents show it;
+    5. any unexpected package or dependency source.
+
+    Then stop: Phase 2 needs a separate approval.
+  - **G-3.2, Phase 2:** only after David has reviewed and approved the scripts, run `$BOOT yarn install`. Report every build result and failure.
 - [ ] **Step 2: Snapshot.** Record `git status --porcelain`, the first part of the N-20 file list.
 - [ ] **Step 3: Run the failing telemetry test.** Run `$CLEAN yarn next telemetry status`. Expected (fails as intended): enabled.
 - [ ] **Step 4: Add the switch.** Write `.env.yarn` containing exactly `NEXT_TELEMETRY_DISABLED=1`, and add `!.env.yarn` to `.gitignore` after `!.env.example`.
@@ -478,6 +487,9 @@ Steps:
 - [ ] **Step 12: Check the tree stays clean**, in the clean environment:
   - run `yarn install`, `yarn build`, then `yarn dev` for about 20 seconds, stopped after one `curl http://127.0.0.1:3000`;
   - `yarn node -p "process.env.npm_execpath"` ends with `.yarn/releases/yarn-4.12.0.cjs`;
+  - `$CLEAN yarn install --immutable` passes, then `YARN_ENABLE_NETWORK=0 yarn install --immutable` passes; both must pass (David's decision D6);
+  - every `resolution` in `yarn.lock` is an approved source: `npm:`, `workspace:` or Yarn's built-in `patch:` (D6);
+  - every package checksum in `yarn.lock` is verified against its archive (D6);
   - then `git status --porcelain` prints nothing.
 
 ### Task 5: Run, and check the baseline is untouched (roadmap 1.5)
@@ -876,3 +888,10 @@ A record of what has actually run. The task steps above stay unticked here; Task
 - **Change:** `8f619d8 build: use @types/node ^24 to match Node.js 24.13.0 (David's decision D2)`. Only `devDependencies["@types/node"]` changed in `package.json`, a one-line diff. Nothing was installed.
 - **Documentation:** no instruction in this plan or the spec names `@types/node`, so this record is the only documentation change. Like the other execution decisions in this record, it isn't yet in the REQUIREMENTS decision log: the task 1.5 allow-list forbids baseline edits before Task 6.
 - **Next:** the G-3 review (Task 4, Step 1), with no install until David approves G-3.
+
+### 2026-11-03: G-3 review decisions (David)
+
+- **D4:** G-3 is split into two approval gates (Task 4, Step 1). G-3.1 runs `$BOOT yarn install --mode=skip-build` and reports every lifecycle script. G-3.2 runs `$BOOT yarn install` only after David approves those scripts.
+- **D5:** the registry stays Yarn's default, `https://registry.yarnpkg.com`. `.yarnrc.yml` is not changed for it.
+- **D6:** Task 4, Step 12 adds `$CLEAN yarn install --immutable`, then `YARN_ENABLE_NETWORK=0 yarn install --immutable`, both of which must pass, plus checks of the lockfile's resolution sources and package checksums.
+- **Approval:** David approved G-3.1 (Phase 1) only, with the command `$BOOT yarn install --mode=skip-build`. The global Yarn cache may receive new archives; existing entries are not cleared or modified. G-3.2, Task 5 and any other work are not approved.
