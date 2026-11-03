@@ -361,12 +361,12 @@
   - Nothing is scaffolded in this step.
   - Report the output and the verification results to David, then stop: scaffolding needs G-1b.2.
 - [ ] **Step 3: Go-ahead G-1b.2, scaffold.** Stop and ask David for a separate explicit approval, after David has reviewed G-1b.1's results. Only after that approval, run the block below.
-  - The scaffold is created only inside `$TMP` (`%LOCALAPPDATA%\Temp\devpulse-chunk01`), with the approved flags, including `--skip-install` and `--disable-git`.
+  - The scaffold is created only inside `$TMP` (`%LOCALAPPDATA%\Temp\devpulse-chunk01`), with the approved flags, including `--skip-install`, `--disable-git` and `--no-agent-feedback` (David's decision after G-1b.1). `--reset-preferences` is not used.
   - No dependency is installed, and the repository isn't touched in this step.
 
   ```bash
   case "$(declare -p DEVPULSE_GUARD_OK 2>/dev/null)" in 'declare -- DEVPULSE_GUARD_OK="1"') ;; *) echo "STOP: the guard block did not run in this shell; use the execution procedure" >&2; exit 1;; esac
-  cd "$TMP" && $BOOT npx --yes create-next-app@<v> devpulse --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --use-npm --skip-install --disable-git --yes
+  cd "$TMP" && $BOOT npx --yes create-next-app@<v> devpulse --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --use-npm --skip-install --disable-git --no-agent-feedback --yes
   ```
 
   Then record `find "$TMP/devpulse" -type f | sort` (the emitted-file list) and confirm that `$TMP/devpulse/.git` doesn't exist.
@@ -716,3 +716,20 @@ A record of what has actually run. The task steps above stay unticked here; Task
 - **G-1b.2 (Task 2, Step 3):** scaffold inside `%LOCALAPPDATA%\Temp\devpulse-chunk01` only, with the approved flags, including `--skip-install` and `--disable-git`. No install, and no repository change. It needs a separate explicit approval after David reviews G-1b.1.
 - **Wording kept:** the AD-34 rows (Task 1, Step 12, already committed) still say "a separate approval (G-1b)". That stays accurate, because G-1b is now two separate approvals. The rows are kept byte-identical because Task 5's baseline check compares them with the committed rows.
 - **Next:** G-1b.1, which is **not approved yet**.
+
+### 2026-11-03: Task 2, Step 2 (G-1b.1), complete
+
+- **Approval:** David approved G-1b.1, CLI verification only.
+- **Command run**, through the execution procedure: `mkdir -p "$TMP" && cd "$TMP" && $BOOT npx --yes create-next-app@16.4.4 --help`.
+- **Result:**
+  - version 16.4.4; exit code 0;
+  - all ten required options appear in the output: `--ts`, `--tailwind`, `--eslint`, `--app`, `--src-dir`, `--import-alias`, `--use-npm`, `--skip-install`, `--disable-git` and `--yes`;
+  - the output also lists `--agents-md` (default), `--agent-feedback` and `--no-agent-feedback`, and says `--yes` uses saved preferences or defaults for options not given.
+- **Effects:** nothing was scaffolded; `$TMP` was empty afterwards; the repository was clean before and after. The package was downloaded to the normal npm cache, outside the repository and `$TMP`.
+
+### 2026-11-03: G-1b.2 command amended (David's decision)
+
+- **Added:** `--no-agent-feedback`, explicitly, to the Task 2, Step 3 scaffold command.
+- **Not added:** `--reset-preferences`. David doesn't approve clearing user-level preferences.
+- **Kept:** `--yes` and every other approved flag, and the default `--agents-md` behaviour; Task 2, Step 5 removes any `AGENTS.md`.
+- **Next:** G-1b.2 (Task 2, Step 3), which is **not approved yet**.
