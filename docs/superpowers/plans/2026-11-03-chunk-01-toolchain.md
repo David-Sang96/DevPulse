@@ -820,3 +820,52 @@ A record of what has actually run. The task steps above stay unticked here; Task
 - **D2:** the `@types/node ^20` versus Node.js 24.13.0 question is deferred to Task 4 (G-3), and is raised again before G-3. Task 3 changes no dependency version.
 - **D3:** the Yarn extraction, the Node.js test fixtures and the scaffold in `$TMP` stay until Chunk 1 is complete; nothing deletes them automatically.
 - **Approval:** David approved Task 3, Steps 1–4; G-2 (Step 5), including its registry request for `@yarnpkg/cli-dist@4.12.0` only; and Steps 6–8. Task 4 and G-3 are not approved.
+
+### 2026-11-03: Task 3 (roadmap 1.3), complete
+
+- **Approval:** as recorded above. David then accepted Task 3 and commits `d17f1dd` and `d9c7d9c`.
+- **Execution:** each step ran in one guarded shell (guard, `BOOT`/`CLEAN`, assertion line, then the step's commands), on `chunk-01-toolchain`.
+- **Versions:** Node.js 24.13.0 (nvm-windows), npm 11.7.0, Corepack 0.34.5 (bundled; not upgraded), Yarn 4.12.0.
+- **Steps 1–2, fixtures and failing tests:**
+  - created `$TMP/check-node-wrong` (`{"engines":{"node":"0.0.0"}}`), `$TMP/check-node-range` (`{"engines":{"node":">=24"}}`) and `$TMP/check-node-missing` (`{}`); none existed beforehand, and each had an empty `scripts/`;
+  - tests (a)–(e) each exited 1 with Node's "Cannot find module".
+- **Step 3:** added `"engines": { "node": "24.13.0" }` to `package.json`; wrote `.nvmrc` (`24.13.0`) and `scripts/check-node.mjs`.
+- **Step 4:** copied the script into each fixture's `scripts/` (confirmed with `cmp`), then all five tests passed:
+  - **(a)** and **(e)**: exit 0, `Node.js 24.13.0 matches package.json engines.node.`;
+  - **(b)**: exit 1, `DevPulse needs Node.js 0.0.0 (package.json engines.node), but this is 24.13.0. Switch with: nvm use 0.0.0`;
+  - **(c)** and **(d)**: exit 1, `package.json engines.node must be an exact version such as 24.13.0.`
+- **Step 5, G-2:**
+  - **Command:** `mkdir -p "$TMP/yarn-dist" && cd "$TMP/yarn-dist" && $BOOT npm pack @yarnpkg/cli-dist@4.12.0 && tar -xzf yarnpkg-cli-dist-4.12.0.tgz`. Exit 0. It was the only network request in Task 3, to `https://registry.npmjs.org/`.
+  - **npm's report:** package `@yarnpkg/cli-dist@4.12.0`; 5 files (`bin/yarn`, `bin/yarn.cmd`, `bin/yarn.js` 3.0 MB, `bin/yarn.ps1`, `package.json`); package size 1.1 MB; shasum `dca8177d4abfe688822460cdcd5797507a54f4f4`; integrity `sha512-r0AVfpKUXIbga[...]RUdoDB7W+kDDA==`, shortened by npm.
+  - **`package/bin/yarn.js`:** present, 2,992,863 bytes.
+- **npm integrity results:**
+  - npm checked the tarball against the registry's integrity while downloading, with no `EINTEGRITY` error;
+  - the tarball's SHA-1, computed locally, equals npm's shasum;
+  - its SHA-512 (base64), computed locally, is `sha512-r0AVfpKUXIbgajKFY0wWMZLwZou+CJmtqt+Y5LTimbPaA78srI0SnLJIS4ikPE1mv8YTPQ7mqRUdoDB7W+kDDA==`, which matches the start and end npm printed.
+- **Step 6, D1 comparison (passed):**
+  - `package/bin/yarn.js` was copied to `.yarn/releases/yarn-4.12.0.cjs`, confirmed byte-identical with `cmp`;
+  - its SHA-256 and that of Corepack's cached `yarn.js` 4.12.0 are both `1fe4e1193cbcd13a48d8f436bb17d3c672b049a5e32a758aab9866a073db1702`, and both files are 2,992,863 bytes;
+  - only after that were `.yarnrc.yml` and `"packageManager": "yarn@4.12.0"` written.
+- **Failed informational read:** a supplementary attempt to read the hash from Corepack's `.corepack` metadata file failed. The check loaded it with `require`, and the file has no `.json` extension, so Node raised a `SyntaxError`. The error printed the file's contents, whose hash is `sha512.f45ab632…afca8`; that equals the SHA-512 of the downloaded `yarn.js`. The failure didn't affect the required D1 check.
+- **Step 7, all passed:**
+  - `node .yarn/releases/yarn-4.12.0.cjs -v`, `$CLEAN yarn -v` and `COREPACK_ENABLE_NETWORK=0 yarn -v` each printed `4.12.0`;
+  - `yarn config get enableTelemetry` printed `false`, with and without `$CLEAN`. `YARN_ENABLE_TELEMETRY` wasn't set, so the value comes from `.yarnrc.yml`;
+  - `where yarn`: `C:\nvm4w\nodejs\yarn`, `C:\nvm4w\nodejs\yarn.CMD`, `C:\Users\user\AppData\Roaming\npm\yarn`, `C:\Users\user\AppData\Roaming\npm\yarn.cmd`. `corepack --version`: `0.34.5`;
+  - `node -v`, `.nvmrc` and `engines.node` all give 24.13.0, and `node scripts/check-node.mjs` printed the pass message;
+  - `package.json`: only `engines` and `packageManager` changed, and neither Yarn nor Corepack rewrote it;
+  - no `yarn.lock`, `node_modules`, `.yarn/install-state.gz`, `.yarn/cache` or `.pnp.cjs` was created;
+  - the Yarn user folder and Corepack's folder were unchanged before and after Step 7.
+- **Step 8, commits:** `d9c7d9c build: pin Node.js 24.13.0 and Yarn 4.12.0 (task 1.3)`: `.nvmrc`, `.yarn/releases/yarn-4.12.0.cjs`, `.yarnrc.yml`, `package.json`, `scripts/check-node.mjs`; 5 files, 971 insertions. It came after the docs commit `d17f1dd` (D1).
+- **After the commit, all passed:**
+  - the working tree was clean;
+  - the committed release blob, the working file and Corepack's copy all have SHA-256 `1fe4e119…1702`;
+  - no CR in the committed text files;
+  - `yarn -v` printed `4.12.0`, and tests (a)–(e) passed again;
+  - the Task 5 checker's SHA-256 matched, and it printed `OK` for each of the six baseline files, then `BASELINE DIFF OK`;
+  - no `yarn.lock`, `node_modules` or `.yarn/install-state.gz`; `main` is still `1121f49`; no remote.
+- **Temporary files kept (D3):** `$TMP/check-node-wrong`, `$TMP/check-node-range`, `$TMP/check-node-missing`, `$TMP/yarn-dist` and the scaffold.
+- **Unverified:**
+  - The shim's `yarn -v` prints `4.12.0` whether the committed file or Corepack's identical copy ran; the `npm_execpath` proof is Task 4, Step 12.
+  - No network monitor ran, so "no request in Step 7" rests on Corepack's cache, the `COREPACK_ENABLE_NETWORK=0` run and the unchanged user folders.
+  - `scripts/check-node.mjs` has not been linted or typechecked; ESLint and TypeScript aren't installed yet.
+  - David's checks in a new terminal of David's own are Task 5, Step 4.
