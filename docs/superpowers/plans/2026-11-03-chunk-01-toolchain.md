@@ -670,3 +670,36 @@ Steps:
   - Update the progress summary and the change log.
 - [ ] **Step 4: Update other docs.** In README.md and CLAUDE.md, update the status and the commands that now exist (`yarn dev`, `yarn build`). Commit with `docs: record Chunk 1 verification`.
 - [ ] **Step 5: Stop.** Report to David using the skill's final-report format, and ask for the go-ahead to merge `chunk-01-toolchain` into `main`. Never merge or push without it.
+
+## Execution record
+
+A record of what has actually run. The task steps above stay unticked here; Task 6 records completion in the roadmap.
+
+### 2026-11-03: Task 1 (roadmap 1.1), complete
+
+- **Steps 1–2:** the six fingerprints and the BL-01 row passed, there was no existing or parent repository, then `git init -b main` ran. The remote list is empty. Everything ran in one guarded shell.
+- **Steps 3–6:**
+  - `.gitattributes`, `.editorconfig` and `.gitignore` were written verbatim from this plan.
+  - The isolated ignore test first printed `?? .env.example`, `?? .env.local`, `?? data/dummy.txt` (failing, as intended).
+  - With `.gitignore` it printed exactly `?? .env.example` and `?? .gitignore`.
+  - `$IT` was removed, and `$TMP` was kept.
+- **Steps 7–9:**
+  - Exactly 15 files were staged, and the baseline commit `1121f49495a337bb74f9704bc1cfec073937fd5c` was made on `main`.
+  - Every committed baseline blob matched its BL-01 fingerprint.
+  - All 15 tracked files have 0 carriage returns. There is one commit and no remote.
+- **Step 10:** `chunk-01-toolchain` was created, with 0 carriage returns after the switch. The commit hash was recorded in `docs/BASELINE.md` (`c21abe3`).
+- **Steps 11–12:** Chunk 1 set to In progress (`be35148`, 5 changed lines). The AD-33–AD-35 register and decision-log rows were added (`881223d`, 3 insertions each, no deletions). Both steps were confirmed by David before they ran.
+
+### 2026-11-03: Task 2, Step 1 (G-1a), complete; README verification skipped
+
+- **Approval:** David approved G-1a, registry metadata only.
+- **Commands run**, through the execution procedure:
+  - `npm view create-next-app version` returned `16.4.4`.
+  - `npm view create-next-app@16.4.4 readme` returned 0 bytes, so the versioned README was empty.
+- **One extra request, outside the approval:** a third metadata-only query, `npm view create-next-app@16.4.4 dist-tags.latest time.modified`. It returned `latest = 16.4.4` and `modified = 2026-11-03T09:08:15.199Z`. It was reported to David; nothing was downloaded.
+- **David's decision:**
+  - skip the package-level README request, with no further network request;
+  - keep `create-next-app` 16.4.4 (no older pin);
+  - verify all ten options with G-1b's `--help` output.
+- **Repository:** unchanged by G-1a; the status was clean before and after.
+- **Next:** G-1b (Task 2, Step 2), which is **not approved yet**.
