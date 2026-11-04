@@ -1008,7 +1008,7 @@ A record of what has actually run. The task steps above stay unticked here; Task
 - **Step 7:** `dev` became `next dev --hostname 127.0.0.1` and `start` became `next start --hostname 127.0.0.1`; the binding test then exited 0.
 - **Step 8:** `$CLEAN yarn build`: Next.js 16.4.4 (Turbopack), "Compiled successfully in 14.4s", "Finished TypeScript in 8.4s", 4 of 4 static pages, routes `/` and `/_not-found` both static. Exit 0. `tsconfig.json`, `yarn.lock` and `package.json` were unchanged by the build.
 - **Step 9:** the planned `grep -rIlE "fonts\.googleapis\.com|fonts\.gstatic\.com|telemetry\.nextjs\.org|next/font/google" src .next` printed nothing (exit 1).
-- **Step 10:** ` M .gitignore`, ` M package.json`, `?? .env.yarn`, `?? yarn.lock`, all intended. Ignored: `.next/`, `.yarn/install-state.gz`, `next-env.d.ts`, `node_modules/`.
+- **Step 10:** `.gitignore` and `package.json` modified (`M`), `.env.yarn` and `yarn.lock` untracked (`??`), all intended. Ignored: `.next/`, `.yarn/install-state.gz`, `next-env.d.ts`, `node_modules/`.
 - **Step 11:**
   - **F2 pre-check:** `yarn.lock` had 0 CR, and Git saw it as `w/lf`.
   - **Commit:** `bbbb1f5 build: install, disable Next.js telemetry per project, bind to 127.0.0.1 (task 1.4)`: `.env.yarn`, `.gitignore`, `package.json`, `yarn.lock`; 4 files, +4,517/−2.
