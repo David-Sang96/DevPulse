@@ -1145,3 +1145,73 @@ A record of what has actually run. The task steps above stay unticked here; Task
   - **Chunk 1 status:** David accepts the loopback evidence for 1.4's acceptance, with its limitations. Chunk 1 may be marked `Complete.` once every remaining check passes. Reachability from another device was **not** independently tested.
   - **Baseline checker:** run it before the Step 3–4 doc edits. After those edits, its expected failures on the approved files are not regressions; the final state is verified by a diff review and unchanged-file checks instead. The checker is not modified.
 - **Next:** steps A–F of the approved Task 6 plan: this record, the M1 fix, the re-checks including L4, Steps 3–4, the execution record, then stop for merge approval.
+
+### 2026-11-04: Task 6, Steps 2–4 (fixes, re-checks, roadmap and docs), complete
+
+- **Approval:** David approved the Task 6 plan, steps A–F, with two corrections:
+  - Chunk 1 may be `Complete.` once every remaining check passes, with the loopback evidence accepted for 1.4;
+  - the baseline checker runs before the Step 3–4 edits, and its expected failures after them aren't regressions.
+- **A:** `6921120 docs: record the Chunk 1 self-review and David's decisions`.
+- **B, M1 fix, test first.** The check isn't committed (no test runner until Chunk 2): every `<a>` in `src/**/*.tsx` with an `http` or `https` `href` must have `rel` with `noopener` and `noreferrer`.
+  - **Before the fix:** `FAIL src/app/page.tsx:25 https://vercel.com/templates rel=""` and `FAIL src/app/page.tsx:32 https://nextjs.org/learn rel=""`. 4 external links, 2 failing, exit 1.
+  - **Fix:** `rel="noopener noreferrer"` added to those two links, +2 lines and nothing else.
+  - **After the fix:** all 4 links `PASS`, exit 0.
+  - **Commit:** `db17ee9 fix: add rel="noopener noreferrer" to external links (self-review M1)`, `src/app/page.tsx` only.
+  - **Editor warnings:** the Tailwind extension shows "suggestCanonicalClasses" warnings, such as `w-[100px]` → `w-25`, on the template's existing class names. They aren't ESLint findings, and they belong to L1 (deferred).
+- **C, re-checks (all passed):**
+  - `$CLEAN yarn tsc --noEmit` exit 0; `$CLEAN yarn lint` exit 0;
+  - `$CLEAN yarn build` exit 0 (compiled, TypeScript passed, `/` and `/_not-found` static);
+  - Task 4, Step 9's host search found no match (exit 1);
+  - `yarn.lock` byte-identical (`9a18b2da…1330`, 0 CR); `package.json` unchanged; `git status` clean; no `AGENTS.md`;
+  - **baseline checker, run before the Step 3–4 edits:** `OK` for all six files and `BASELINE DIFF OK`, exit 0; its temporary files were removed.
+- **L4, production `yarn start`:**
+  - **First run (section C):** `$CLEAN yarn start` logged `Local: http://127.0.0.1:3000` and `✓ Ready in 162ms`, with no errors; a single `curl` returned HTTP 200; the tree was stopped and nothing was left on port 3000.
+    - Its PowerShell snapshot failed (`Invalid query`, a quoting error in the assistant's script), so the connection snapshot and the leftover-process check did **not** run in that pass.
+  - **Rerun with a corrected script:** `Local: http://127.0.0.1:3000`, `✓ Ready in 131ms`, no errors.
+    - A single `curl http://127.0.0.1:3000` returned HTTP 200.
+    - Snapshots before and after the `curl`: `established: 0; external: 0`.
+    - `netstat`: once `TCP 127.0.0.1:3000 0.0.0.0:0 CLOSED 25124` (the M4 misreporting), once no entry; no TCPv6 entry.
+    - The assistant's tree was stopped with `taskkill /T /F`, and nothing was on port 3000 afterwards.
+    - The rerun's leftover-process check reported a pre-existing process; see the incident below.
+- **Process termination incident:**
+  - **What the rerun found:** a `node.exe` process, PID 19536, `C:/nvm4w/nodejs/node_modules/corepack/dist/yarn.js start`. It had started at 2026-11-04 12:51:41, before either of the assistant's `yarn start` runs, under a Git Bash `sh.exe` (PID 1020), with one child (PID 18384).
+  - **What the assistant did:** it wrongly assumed the process was a leftover of its own section C run. Without establishing ownership, it ran `taskkill /PID 19536 /T /F`, which terminated PIDs 3480, 18384 and 19536.
+  - **What is known:** the process's ownership was not established; PID 3480's identity is unknown; no other DevPulse session was listed by `ListAgents`.
+  - **Effect on the evidence:** both of the assistant's `yarn start` servers started without a port-in-use error. So the pre-existing process was not serving port 3000 at the time, and the L4 results come from the assistant's servers.
+  - **Reported** to David in the same turn.
+- **Automatic AI review attempts (OD-15):**
+  - The `security-guidance` plugin (2.0.17) automatically tried an agentic AI review of commit `db17ee9`, sending a request to Anthropic's API. The request was refused for insufficient credit (HTTP 400), with 0 tokens processed and no verdict.
+  - The plugin's log, shared across sessions, shows 48 such attempts, all refused.
+  - Commits that change only documentation, such as `aa6e9d2` and the docs commits in this record, were skipped ("no reviewable source files").
+  - No independent review took place. David will disable the automatic review in the plugin settings. OD-15 stays Pending.
+- **D and E, roadmap, README and `CLAUDE.md`:**
+  - **Commit:** `aa6e9d2 docs: record Chunk 1 verification`: `CLAUDE.md` +4/−2, `README.md` +2/−2, `docs/IMPLEMENTATION_ROADMAP.md` +20/−11.
+  - **Roadmap:**
+    - 1.1 (`1121f49`, `c21abe3`), 1.2 (`d7ae49a`, `db17ee9`), 1.3 (`d9c7d9c`, `8f619d8`), 1.4 (`bbbb1f5`, `841a80e`) and 1.5 (`f8a35ec`) ticked;
+    - the italic manual-verification note, checked and not checked;
+    - the N-17 evidence, including that Corepack's cached `yarn.js` ran `yarn dev` directly and that the committed release is **not** claimed to have run through `yarnPath`;
+    - the N-20 evidence;
+    - `**Status:** Complete.`;
+    - the progress summary: Completed 1, In-progress 0, Remaining 35, Last updated 2026-11-04, "Roadmap start" updated;
+    - the change-log row.
+  - **README:** line 5 status, line 124 status.
+  - **`CLAUDE.md`:** line 8 status; the Commands section now has "Available now" (`yarn dev`, `yarn start`, `yarn build`, `yarn lint`, and `yarn tsc --noEmit` until `yarn typecheck`).
+    - **Deviation from the approved wording:** the parenthetical descriptions of `yarn check` and `yarn verify` in the "Planned, not available yet" list were kept. The approved text listed the commands without them; they were kept so as not to drop existing information.
+  - **Not applied:** the deferred Clean-code and Pre-PR proposals.
+- **Verification after the Step 3–4 edits** (diff review instead of the checker, as David directed):
+  - `git diff --numstat 1121f49` on the six files: `CLAUDE.md` +4/−2, `README.md` +3/−3, `docs/ARCHITECTURE.md` +3/−0, `docs/IMPLEMENTATION_ROADMAP.md` +19/−10, `docs/REQUIREMENTS.md` +3/−0; `SKILL.md` unchanged;
+  - REQUIREMENTS and ARCHITECTURE unchanged since `db17ee9`;
+  - files changed since `db17ee9`: only `CLAUDE.md`, `README.md` and the roadmap;
+  - before the Step 3–4 commit, those three differed from the baseline only by the allow-listed lines (1, 1 and 3);
+  - 0 CR;
+  - markdownlint in VS Code: no warnings in README and `CLAUDE.md`. The roadmap result came back empty without a line count, so it may not have been analysed.
+- **Status:** Chunk 1 is `Complete.` on `chunk-01-toolchain`, under David's decision. Every remaining check passed.
+- **Limitations recorded, not resolved:**
+  - reachability from another device was not independently tested;
+  - the Windows listener state was unreliable;
+  - 76 lockfile entries have no checksum, including the five installed Windows binaries;
+  - the D3 temporary evidence was lost;
+  - no OS-level network capture was performed;
+  - the Phase 1 console output was lost;
+  - the review was a self-review, not independent.
+- **Next:** stop and ask David for a separate approval to merge `chunk-01-toolchain` into `main`. No merge, no push.
