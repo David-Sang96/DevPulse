@@ -5,7 +5,7 @@
 - DevPulse is a local-first developer news dashboard for David's personal Windows PC. Every Monday at 08:00 Malaysia time (`Asia/Kuala_Lumpur`) it collects last week's developer news, then rewrites each article in simple English for junior developers.
 - Windows Task Scheduler runs the collection as the task `DevPulse-Weekly-News-Collection`, using the command `yarn news:sync`.
 - It is not a chatbot, and no local AI model is built. David owns the project and makes all product decisions.
-- The project is in planning (revision r4), and no application code exists yet. Read `docs/IMPLEMENTATION_ROADMAP.md` before doing any work. David approved the planning baseline (BL-01) on 2026-11-03, and Chunk 1 is in progress. Requirements live in `docs/REQUIREMENTS.md` and the design in `docs/ARCHITECTURE.md`.
+- Chunk 1 (repository and toolchain) is complete; the app is still the Next.js scaffold, and no DevPulse feature exists yet. Read `docs/IMPLEMENTATION_ROADMAP.md` before doing any work. David approved the planning baseline (BL-01) on 2026-11-03, and Chunk 1 is complete. Requirements live in `docs/REQUIREMENTS.md` and the design in `docs/ARCHITECTURE.md`.
 
 ## Locked stack
 
@@ -20,9 +20,11 @@ Any change to this stack needs a clear technical reason and David's approval.
 
 ## Commands
 
+**Available now:** `yarn dev` and `yarn start` (both bound to `127.0.0.1`), `yarn build` and `yarn lint`. Type checks run with `yarn tsc --noEmit` until Chunk 2 adds `yarn typecheck`.
+
 Planned, not available yet:
 
-- **Chunks 1–3:** `yarn dev`, `yarn build`, `yarn check` (Node version check, typecheck, lint, `lint:md` and unit tests), `yarn verify` (`check` plus `test:e2e`), `yarn test`, `yarn test:e2e`, `yarn typecheck`, `yarn lint`, `yarn lint:md`, `yarn format` and `yarn news:sync`.
+- **Chunks 2–3:** `yarn check` (Node version check, typecheck, lint, `lint:md` and unit tests), `yarn verify` (`check` plus `test:e2e`), `yarn test`, `yarn test:e2e`, `yarn typecheck`, `yarn lint:md`, `yarn format` and `yarn news:sync`.
 - **Chunk 4:** `yarn db:generate` and `yarn db:migrate`.
 - **Chunk 18:** `yarn db:seed`.
 - **Chunk 27:** `yarn news:cleanup`.
