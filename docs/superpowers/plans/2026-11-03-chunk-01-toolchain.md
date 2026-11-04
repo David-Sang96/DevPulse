@@ -992,3 +992,56 @@ A record of what has actually run. The task steps above stay unticked here; Task
   - `git status` showed `?? yarn.lock` only; `node_modules/`, `.yarn/install-state.gz` and `next-env.d.ts` are ignored; no tracked file changed;
   - the Task 5 checker's SHA-256 matched, and it printed `OK` for each of the six baseline files, then `BASELINE DIFF OK`.
 - **Next:** Task 4, Steps 2–12, approved by David. Task 5 is not approved.
+
+### 2026-11-04: Task 4, Steps 2–12 (roadmap 1.4)
+
+- **Approval:** David approved Task 4, Steps 2–12, then F5 (a). Lint belongs to Task 6, Step 1 and has not run; it will show whether YN0086 causes a real problem.
+- **Docs first:** `c6a4d2a` (F2 conversion and G-3.2 record).
+- **Step 2, snapshot:** `git status --porcelain` printed `?? yarn.lock`.
+- **Step 3:** `$CLEAN yarn next telemetry status` printed `Status: Enabled`, failing as intended.
+- **Step 4:** wrote `.env.yarn` (`NEXT_TELEMETRY_DISABLED=1`, 26 bytes, no CR) and added `!.env.yarn` after `!.env.example` in `.gitignore`. `.env.yarn` is not ignored; `.env.local` still is.
+- **Step 5:**
+  - `$CLEAN yarn next telemetry status` printed `Status: Disabled` ("You have opted-out of Next.js' anonymous telemetry program.");
+  - the control, `$CLEAN node node_modules/next/dist/bin/next telemetry status`, printed `Status: Enabled`;
+  - the per-user `%APPDATA%\nextjs-nodejs\Config\config.json` was unchanged (same hash, modification time 2024-12-11 00:49:05).
+- **Step 6:** the binding test exited 1, failing as intended.
+- **Step 7:** `dev` became `next dev --hostname 127.0.0.1` and `start` became `next start --hostname 127.0.0.1`; the binding test then exited 0.
+- **Step 8:** `$CLEAN yarn build`: Next.js 16.4.4 (Turbopack), "Compiled successfully in 14.4s", "Finished TypeScript in 8.4s", 4 of 4 static pages, routes `/` and `/_not-found` both static. Exit 0. `tsconfig.json`, `yarn.lock` and `package.json` were unchanged by the build.
+- **Step 9:** the planned `grep -rIlE "fonts\.googleapis\.com|fonts\.gstatic\.com|telemetry\.nextjs\.org|next/font/google" src .next` printed nothing (exit 1).
+- **Step 10:** ` M .gitignore`, ` M package.json`, `?? .env.yarn`, `?? yarn.lock`, all intended. Ignored: `.next/`, `.yarn/install-state.gz`, `next-env.d.ts`, `node_modules/`.
+- **Step 11:**
+  - **F2 pre-check:** `yarn.lock` had 0 CR, and Git saw it as `w/lf`.
+  - **Commit:** `bbbb1f5 build: install, disable Next.js telemetry per project, bind to 127.0.0.1 (task 1.4)`: `.env.yarn`, `.gitignore`, `package.json`, `yarn.lock`; 4 files, +4,517/−2.
+  - **After the commit:** every committed blob has 0 CR; the committed `yarn.lock` SHA-256 is `9a18b2da…1330`.
+- **Step 12, first run, failed only its final check:**
+  - install, build, the dev server (HTTP 200), the F3 and D6 checks, the source and checksum checks and the LF checks all passed;
+  - `git status --porcelain` printed `?? AGENTS.md`. The dev log said `✓ Generated AGENTS.md for AI agents. Set agentRules: false in next.config to disable.`
+- **F5 finding:**
+  - Next.js 16.4.4 writes a managed block to `AGENTS.md` during `next dev` when `getAgentName()` detects an AI-agent session. This session sets variables such as `CLAUDECODE` and `AI_AGENT`.
+  - The generated file was 679 bytes, 9 lines, LF, SHA-256 `063098f6…`. It held only the managed block (`<!-- BEGIN:nextjs-agent-rules -->` … `<!-- END:nextjs-agent-rules -->`), with no other content.
+  - Its text tells agents to commit it. That was treated as file content, not as an instruction.
+- **David's decision, F5 (a):** add `agentRules: false` to `next.config.ts`. Change no dependencies, `package.json`, `yarn.lock` or `.gitignore` for this.
+- **Configuration change:**
+  - `agentRules` is a documented top-level `NextConfig` option ("Set to `false` to disable this behavior", default `true`), validated as `z.boolean().optional()` in Next.js's config schema.
+  - Only `agentRules: false,` was added to `next.config.ts`; the `turbopack` rule is unchanged.
+  - **Pre-commit dev check:** the server reported `127.0.0.1:3000`, a single `curl` got HTTP 200, and there were no config warnings. The log said `✓ Removed agent rules from AGENTS.md because agentRules is disabled.`, so Next.js deleted the managed-only file itself; nothing was deleted by hand. Nothing was listening on port 3000 after the stop.
+  - **Commit:** `841a80e build: disable Next.js agent-rules file generation (F5)`, a one-line addition.
+- **Step 12, rerun on the clean tree after `841a80e` (all passed):**
+  - **Install and build:** `$CLEAN yarn install` exited 0 (output as in G-3.2, including YN0086); `$CLEAN yarn build` exited 0.
+  - **Dev server:** `$CLEAN yarn dev` printed `Local: http://127.0.0.1:3000` and `Network: http://127.0.0.1:3000`, then `✓ Ready in 326ms`. After 20 seconds a single `curl http://127.0.0.1:3000` got HTTP 200 (`GET / 200 in 212ms`). The process tree was stopped with `taskkill /T /F`, and nothing was listening on port 3000 afterwards. No `AGENTS.md` before or after, and no "Generated AGENTS.md" line.
+  - **F3:**
+    - `node .yarn/releases/yarn-4.12.0.cjs -v` printed `4.12.0`;
+    - `yarn config get yarnPath` printed `C:\Users\user\Desktop\DevPulse\.yarn\releases\yarn-4.12.0.cjs`;
+    - `node .yarn/releases/yarn-4.12.0.cjs install --immutable` exited 0.
+  - **D6:** `$CLEAN yarn install --immutable` exited 0, and `YARN_ENABLE_NETWORK=0 yarn install --immutable` (clean environment) exited 0.
+  - **Sources:** 434 lockfile entries, all `npm:`, `workspace:` or built-in `patch:`.
+  - **Checksums:** 357 match their cache archives, 0 mismatch, 0 missing. The **76 entries without a lockfile checksum** remain **unverified** (F4).
+  - **Builds and cache:** no package builds (`storedBuildState` 0, `skippedBuilds` 0); the Yarn cache stayed at 2,845 archives, none added or removed.
+  - **`yarn.lock`:** byte-identical to `bbbb1f5` (`9a18b2da…1330`), LF with 0 CR, after every Yarn command above.
+  - **Final status:** `git status --porcelain` printed nothing. Ignored: `.next/`, `.yarn/install-state.gz`, `next-env.d.ts`, `node_modules/`.
+- **Limitations (unchanged):**
+  - no OS-level network capture was taken during install, build or dev; outbound connections are recorded in Task 5, Step 3;
+  - the 76 packages without lockfile checksums remain unverified;
+  - the original Phase 1 console output is lost (F1);
+  - lint has not run (Task 6).
+- **Next:** Task 5, which is **not approved yet**.
