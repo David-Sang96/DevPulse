@@ -25,6 +25,7 @@ export default function Home() {
             <a
               href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
               className="font-medium text-zinc-950 dark:text-zinc-50"
+              rel="noopener noreferrer"
             >
               Templates
             </a>{" "}
@@ -32,6 +33,7 @@ export default function Home() {
             <a
               href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
               className="font-medium text-zinc-950 dark:text-zinc-50"
+              rel="noopener noreferrer"
             >
               Learning
             </a>{" "}
