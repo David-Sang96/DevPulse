@@ -17,7 +17,7 @@
 | Last updated | 2026-11-04 |
 
 - **Revision:** r4 (2026-11-03), applying the independent review of r3.
-- **Roadmap start:** BL-01 approved by David on 2026-11-03 (see the [REQUIREMENTS decision log](REQUIREMENTS.md#decision-log)); Chunk 1 is complete on `chunk-01-toolchain`, awaiting David's merge approval.
+- **Roadmap start:** BL-01 approved by David on 2026-11-03 (see the [REQUIREMENTS decision log](REQUIREMENTS.md#decision-log)); Chunk 1 is complete and merged into `main` (merge commit 1dc014d).
 - **Article simplification:** incomplete until OD-01 is approved and Chunk 32 is verified. The `none` and `fake` providers do not count.
 - **Live collection:** nothing is collected in the live checkout until retention is active: OD-04 and OD-05 resolved, and Chunk 27 complete, verified and deployed (AD-32). Real use can't begin before then, and Chunks 30, 33, 34, 35 and 36 can't complete before then. Chunk 29 itself doesn't wait for retention.
 - **Open decisions:** OD-01…OD-19 and assumptions A-01…A-06 are all Pending.
