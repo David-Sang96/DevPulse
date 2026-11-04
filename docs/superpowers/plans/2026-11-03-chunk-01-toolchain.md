@@ -462,7 +462,8 @@ Steps:
     5. any unexpected package or dependency source.
 
     Then stop: Phase 2 needs a separate approval.
-  - **G-3.2, Phase 2:** only after David has reviewed and approved the scripts, run `$BOOT yarn install`. Report every build result and failure.
+  - **Before G-3.2 (David's decision F2):** convert `yarn.lock` to LF line endings, and verify that it contains no CR. `.gitattributes` stays as it is.
+  - **G-3.2, Phase 2:** only after David has reviewed and approved the scripts, run `YARN_ENABLE_NETWORK=0 $BOOT yarn install`; the network stays disabled (David's approved command). Report every build result and failure. Confirm that no package build is scheduled, that `yarn.lock` is unchanged (same SHA-256 before and after), that it still has no CR, and that `package.json` is unchanged. Stop if an unexpected build script appears or Yarn attempts an unsupported operation.
 - [ ] **Step 2: Snapshot.** Record `git status --porcelain`, the first part of the N-20 file list.
 - [ ] **Step 3: Run the failing telemetry test.** Run `$CLEAN yarn next telemetry status`. Expected (fails as intended): enabled.
 - [ ] **Step 4: Add the switch.** Write `.env.yarn` containing exactly `NEXT_TELEMETRY_DISABLED=1`, and add `!.env.yarn` to `.gitignore` after `!.env.example`.
@@ -483,13 +484,17 @@ Steps:
 
   Expected: no output. Any match: stop and report the file to David.
 - [ ] **Step 10: Classify what install and build changed.** Record `git status --porcelain` (the N-20 list). Every entry is either intended (`yarn.lock`, `.env.yarn`, `.gitignore`, `package.json`, a build rewrite of `tsconfig.json`) or generated output to ignore. Anything else: stop and ask.
-- [ ] **Step 11: Commit** with `build: install, disable Next.js telemetry per project, bind to 127.0.0.1 (task 1.4)`.
+- [ ] **Step 11: Commit** with `build: install, disable Next.js telemetry per project, bind to 127.0.0.1 (task 1.4)`. Before committing, confirm that `yarn.lock` has LF line endings and no CR (F2).
 - [ ] **Step 12: Check the tree stays clean**, in the clean environment:
   - run `yarn install`, `yarn build`, then `yarn dev` for about 20 seconds, stopped after one `curl http://127.0.0.1:3000`;
-  - `yarn node -p "process.env.npm_execpath"` ends with `.yarn/releases/yarn-4.12.0.cjs`;
+  - the committed Yarn release is the one in use (David's decision F3, replacing the `npm_execpath` check, which can't pass because Yarn's `npm_execpath` shim points to Corepack's `yarn.js`). Windows process command lines are not inspected:
+    1. `node .yarn/releases/yarn-4.12.0.cjs -v` prints `4.12.0`;
+    2. `yarn config get yarnPath` prints the path of `.yarn/releases/yarn-4.12.0.cjs`;
+    3. `node .yarn/releases/yarn-4.12.0.cjs install --immutable` passes;
   - `$CLEAN yarn install --immutable` passes, then `YARN_ENABLE_NETWORK=0 yarn install --immutable` passes; both must pass (David's decision D6);
   - every `resolution` in `yarn.lock` is an approved source: `npm:`, `workspace:` or Yarn's built-in `patch:` (D6);
-  - every package checksum in `yarn.lock` is verified against its archive (D6);
+  - every `checksum` in `yarn.lock` equals the SHA-512 of its archive in the Yarn cache (D6). Yarn records no checksum for the 76 platform-specific packages, including the five installed Windows binaries, so their integrity is reported as unverified (David's decision F4). No checksum is invented, and checksum validation (`checksumBehavior`) is not disabled;
+  - `yarn.lock` still has LF line endings and no CR after every Yarn command above (F2);
   - then `git status --porcelain` prints nothing.
 
 ### Task 5: Run, and check the baseline is untouched (roadmap 1.5)
@@ -895,3 +900,47 @@ A record of what has actually run. The task steps above stay unticked here; Task
 - **D5:** the registry stays Yarn's default, `https://registry.yarnpkg.com`. `.yarnrc.yml` is not changed for it.
 - **D6:** Task 4, Step 12 adds `$CLEAN yarn install --immutable`, then `YARN_ENABLE_NETWORK=0 yarn install --immutable`, both of which must pass, plus checks of the lockfile's resolution sources and package checksums.
 - **Approval:** David approved G-3.1 (Phase 1) only, with the command `$BOOT yarn install --mode=skip-build`. The global Yarn cache may receive new archives; existing entries are not cleared or modified. G-3.2, Task 5 and any other work are not approved.
+
+### 2026-11-03: Task 4, Step 1, G-3.1 (Phase 1), complete
+
+- **Pre-checks (passed):**
+  - branch `chunk-01-toolchain` with a clean tree, and no `yarn.lock`, `node_modules` or `.yarn/install-state.gz`;
+  - `node -v` is `v24.13.0`, and `$CLEAN yarn -v` is `4.12.0`;
+  - the registry is `https://registry.yarnpkg.com`;
+  - the release file's SHA-256 is `1fe4e119…1702`.
+- **Command:** `$BOOT yarn install --mode=skip-build`, run through the execution procedure.
+- **Original console output: lost (F1).** The guarded run exited **0** and printed **28 lines**, captured to a file in the session's temporary scratchpad. A session restart cleared that scratchpad before the file was read. The original text is unavailable, including any Yarn warnings such as peer-dependency messages. Phase 1 was not rerun. Everything below was verified afterwards, from the files the install left behind.
+- **File times:** `yarn.lock` at 21:00:55 and `.yarn/install-state.gz` at 21:01:54, both +08:00; the docs commit `da72456` was at 20:45:42.
+- **Verified after the install:**
+  - **Repository:** `git status` showed only `?? yarn.lock`; `node_modules/` and `.yarn/install-state.gz` are ignored; `package.json` is unchanged; no `.pnp.cjs`, `.yarn/cache` or `.yarn/unplugged`.
+  - **`yarn.lock`:** 165,094 bytes, 4,513 lines, every line ending CRLF (F2); format version 8, cache key `10c0`.
+    - 434 entries: 1 workspace and 433 packages.
+    - Sources: 431 `npm:` and 2 built-in `patch:` (`typescript@5.9.3`, `resolve@2.0.0-next.7`); none from git, a URL or a file.
+  - **Resolved versions:**
+    - `next`, `@next/env`, `eslint-config-next` 16.4.4;
+    - `react`, `react-dom`, `@types/react`, `@types/react-dom` 19.3.0;
+    - `typescript` 5.9.3; `tailwindcss`, `@tailwindcss/turbopack`, `@tailwindcss/oxide` 4.3.4;
+    - `eslint` 9.39.5; `@types/node` 24.19.2; `sharp` 0.35.5; `lightningcss` 1.33.0; `unrs-resolver` 1.13.0.
+  - **Platform packages:** 76 are platform-specific; 71 for other platforms are disabled.
+    - The five installed Windows x64 packages are `@next/swc-win32-x64-msvc`, `@img/sharp-win32-x64`, `@tailwindcss/oxide-win32-x64-msvc`, `lightningcss-win32-x64-msvc` and `@unrs/resolver-binding-win32-x64-msvc`.
+  - **`node_modules`:** 364 package folders, 359 distinct name@version pairs.
+  - **Lifecycle scripts:** none of the 364 package folders has a `preinstall`, `install` or `postinstall` script, or a `binding.gyp`.
+  - **Install state:** `storedBuildState` 0 and `skippedBuilds` 0, so nothing was built and Yarn scheduled nothing to build.
+  - **Engines:** 270 packages declare `engines.node`, and Node.js 24.13.0 satisfies all of them.
+  - **Checksums (F4):** 357 of 433 lockfile entries carry a checksum, and all 357 equal the SHA-512 of their Yarn cache archive, with no mismatch and no missing archive. The other 76, the platform-specific packages including the five installed Windows binaries, have no lockfile checksum, so their integrity remains **unverified**.
+  - **Global Yarn cache:** 2,710 → 2,845 archives (135 added). No pre-existing archive was modified; the newest pre-existing modification time is 2026-11-02 11:21.
+  - **Baseline:** the Task 5 checker's SHA-256 matched, and it printed `OK` for each of the six baseline files, then `BASELINE DIFF OK`.
+  - **`npm_execpath`:** during `yarn node`, it pointed to a temporary Yarn shim that launches Corepack's `yarn.js` (F3).
+- **Limitations:**
+  - the original console output is lost;
+  - no network monitor ran, so the hosts contacted aren't independently recorded;
+  - 76 packages have no checksum to verify;
+  - the first offline checksum method, which matched archives by hash prefix, found no archives. It was replaced by matching on name and version, which gave the results above.
+
+### 2026-11-03: G-3.1 findings, David's decisions
+
+- **F1:** record the lost Phase 1 output, the confirmed exit code 0 and the 28 lines, and keep verified results separate from the unavailable output. Phase 1 is not rerun.
+- **F2:** convert `yarn.lock` to LF before Phase 2 and before committing; verify that no CR remains and that later Yarn commands keep LF; `.gitattributes` is unchanged.
+- **F3:** in Task 4, Step 12, replace the `npm_execpath` check with `node .yarn/releases/yarn-4.12.0.cjs -v`, `yarn config get yarnPath` and `node .yarn/releases/yarn-4.12.0.cjs install --immutable`. No Windows process command-line inspection.
+- **F4:** record 357 of 433 verified checksums and the 76 without one; invent no checksum; don't disable checksum validation; their integrity remains unverified.
+- **Approval:** David approved G-3.2 (Phase 2) with the command `YARN_ENABLE_NETWORK=0 $BOOT yarn install`. Task 5 is not approved.
