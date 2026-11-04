@@ -1093,3 +1093,14 @@ A record of what has actually run. The task steps above stay unticked here; Task
   - the author of the `CLAUDE.md` edits is unconfirmed;
   - the earlier limitations (the 76 packages without checksums, the lost Phase 1 output) still apply.
 - **Next:** Task 6, which is **not approved yet**.
+
+### 2026-11-04: Task 6, Step 1 (checks), complete
+
+- **Approval:** David approved Task 6, Step 1 only. OD-15 stays Pending; no `/code-review`, no reviewer subagents.
+- **Starting state:** branch `chunk-01-toolchain`, HEAD `f8a35ec`, clean tree.
+- **`$CLEAN yarn tsc --noEmit`:** no output, exit code **0**: no errors, no warnings.
+- **`$CLEAN yarn lint`:** no output, exit code **0**: no errors, no warnings. So the YN0086 peer-dependency warning (the single `✘` requirement, `@next/eslint-plugin-next` not providing `eslint` to `@eslint-community/eslint-utils`) did not cause a lint failure.
+- **Side effect:** `tsc` created `tsconfig.tsbuildinfo`, which `.gitignore` already ignores (`*.tsbuildinfo`). `git status --porcelain` stayed empty. Nothing was fixed, suppressed or changed.
+- **Not run:** `yarn check`, `yarn test` and `yarn test:e2e` don't exist until Chunk 2; markdownlint on the changed Markdown runs through VS Code in the later steps.
+- **Limitations:** both tools printed nothing, so there are no warnings to inspect; the lint run covers only the files ESLint's configuration includes, and the scaffold has little code to check.
+- **Next:** Task 6, Step 2 (self-review), which is **not approved yet**.
