@@ -944,3 +944,51 @@ A record of what has actually run. The task steps above stay unticked here; Task
 - **F3:** in Task 4, Step 12, replace the `npm_execpath` check with `node .yarn/releases/yarn-4.12.0.cjs -v`, `yarn config get yarnPath` and `node .yarn/releases/yarn-4.12.0.cjs install --immutable`. No Windows process command-line inspection.
 - **F4:** record 357 of 433 verified checksums and the 76 without one; invent no checksum; don't disable checksum validation; their integrity remains unverified.
 - **Approval:** David approved G-3.2 (Phase 2) with the command `YARN_ENABLE_NETWORK=0 $BOOT yarn install`. Task 5 is not approved.
+
+### 2026-11-04: Task 4, Step 1, F2 conversion and G-3.2 (Phase 2), complete
+
+- **Docs first:** `35e21e8` (G-3.1 record and F1–F4).
+- **F2 conversion:**
+  - **Command:** `sed -i 's/\r$//' yarn.lock`, after backing up the CRLF file.
+  - **Before:** SHA-256 `6b344110136cbd2163d6e3fbd1804465224edbf91adf2602c9f425a39814adec`, 165,094 bytes, 4,513 lines, 4,513 CR bytes; Git saw `w/crlf`.
+  - **After:** SHA-256 `9a18b2da914de0362ef6ead9eff140e96121dd2ba1bdecdea94aadab1ba61330`, 160,581 bytes, 4,513 lines, 0 CR; Git sees `w/lf` (`attr/text=auto eol=lf`).
+  - The content is identical apart from line endings (`cmp` against the backup with CRs removed). `.gitattributes` is unchanged.
+  - The "before" values were computed from the backup afterwards, because the first attempt to print them failed with a shell syntax error.
+- **Pre-checks (passed):** `node v24.13.0`; `node .yarn/releases/yarn-4.12.0.cjs -v` printed `4.12.0`; `yarn -v` printed `4.12.0`; `yarnPath` is `C:\Users\user\Desktop\DevPulse\.yarn\releases\yarn-4.12.0.cjs`; the release's SHA-256 is `1fe4e119…1702`.
+- **Command:** `YARN_ENABLE_NETWORK=0 $BOOT yarn install`, through the execution procedure. Exit code **0**. Full output, 11 lines:
+
+  ```text
+  ➤ YN0000: · Yarn 4.12.0
+  ➤ YN0000: ┌ Resolution step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: ┌ Post-resolution validation
+  ➤ YN0086: │ Some peer dependencies are incorrectly met by dependencies; run yarn explain peer-requirements for details.
+  ➤ YN0000: └ Completed
+  ➤ YN0000: ┌ Fetch step
+  ➤ YN0000: └ Completed in 0s 488ms
+  ➤ YN0000: ┌ Link step
+  ➤ YN0000: └ Completed
+  ➤ YN0000: · Done with warnings in 0s 715ms
+  ```
+
+- **YN0086, as reported:**
+  - `YARN_ENABLE_NETWORK=0 $CLEAN yarn explain peer-requirements` listed 81 requirements. One is marked `✘`: `pe0e3c6 → ✘ @next/eslint-plugin-next@npm:16.4.4 doesn't provide eslint to @eslint-community/eslint-utils@npm:4.9.1 [fe6ed]`. All the others are marked `✓`.
+  - **David's decision:** don't change dependencies or `package.json` to remove it. The planned lint check (Task 6, Step 1) shows whether it causes a real problem. If lint fails, investigate and report the cause before proposing any dependency change.
+- **Builds:**
+  - **zero:** no YN0007, YN0008 or YN0009 lines; `storedBuildState` 0; `skippedBuilds` 0;
+  - none of the 364 package folders has a `preinstall`, `install` or `postinstall` script or a `binding.gyp`;
+  - the project's own `package.json` has no install script.
+- **Lockfile:** SHA-256 `9a18b2da…1330` before and after Phase 2, and after `yarn explain`; still 0 CR, so Yarn kept LF. `package.json` is unchanged.
+- **Cache:** 2,845 archives before and after; none added or removed.
+- **Network:**
+  - Yarn's network was disabled with `YARN_ENABLE_NETWORK=0`, the install succeeded, and the fetch step was served from the cache in 0.488 seconds.
+  - **Limitation:** this proves Yarn made no request. It is not an OS-level capture of network traffic.
+- **Integrity (unchanged from G-3.1, F4):**
+  - 434 lockfile entries, all `npm:`, `workspace:` or built-in `patch:`;
+  - 357 checksums equal the SHA-512 of their cache archives;
+  - **76 entries have no lockfile checksum**, including the five installed Windows binaries, and their integrity **remains unverified**. No checksum was invented, and `checksumBehavior` stays `throw`.
+- **Engines:** all 270 `engines.node` declarations are satisfied by Node.js 24.13.0.
+- **After:**
+  - `git status` showed `?? yarn.lock` only; `node_modules/`, `.yarn/install-state.gz` and `next-env.d.ts` are ignored; no tracked file changed;
+  - the Task 5 checker's SHA-256 matched, and it printed `OK` for each of the six baseline files, then `BASELINE DIFF OK`.
+- **Next:** Task 4, Steps 2–12, approved by David. Task 5 is not approved.
