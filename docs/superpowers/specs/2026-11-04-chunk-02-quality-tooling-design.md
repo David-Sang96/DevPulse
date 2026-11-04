@@ -1,6 +1,6 @@
 # Chunk 2 — Quality tooling and test runners: design
 
-**Status:** Approved by David on 2026-11-04 (chunk-workflow Step 4), after the Step 4 self-review revisions (H1, H2, M1–M3).
+**Status:** Approved by David on 2026-11-04 (chunk-workflow Step 4), after the Step 4 self-review revisions (H1, H2, M1–M3). Revised the same day after G-2a to add `vite` as a fifth devDependency (D-6, AD-41). The revision awaits David's review before G-2b.
 
 **Roadmap:** [Chunk 2](../../IMPLEMENTATION_ROADMAP.md#chunk-2--quality-tooling-and-test-runners). **Plan:** [2026-11-04-chunk-02-quality-tooling.md](../plans/2026-11-04-chunk-02-quality-tooling.md).
 
@@ -96,8 +96,14 @@ Acceptance criteria are quoted from the roadmap. The one change of wording is in
 
 - **AD-33**, Yarn 4.12.0 (decision log, 2026-11-03). `yarn check` relies on Yarn 4 answering, not Yarn 1 (see risk N2).
 - **AD-35**, `.env.yarn` telemetry switch (decision log, 2026-11-03). The Playwright web server starts through `yarn` so that it applies.
+- **AD-36**, format scripts: `format` and `format:check` (decision log, 2026-11-04; D-1).
+- **AD-37**, the E2E smoke test checks the exact title `Create Next App` (decision log, 2026-11-04; D-2).
+- **AD-38**, markdownlint with MD013 off and formatting-only fixes (decision log, 2026-11-04; D-3).
+- **AD-39**, `typecheck` = `next typegen && tsc --noEmit` (decision log, 2026-11-04; D-4).
+- **AD-40**, one formatting-only commit for existing code that fails `yarn format:check` (decision log, 2026-11-04; D-5).
+- **AD-41**, the five devDependencies and their exact versions (decision log, 2026-11-04; D-6).
 
-BL-01 and AD-34 don't affect this chunk. No other row in the decision log applies.
+BL-01 and AD-34 don't affect this chunk.
 
 ### Proposed (relied on by this chunk)
 
@@ -126,6 +132,13 @@ David answered these in the Step 4 self-review questions of 2026-11-04 ("Typeche
 
 D-1…D-5 are recorded as AD-36…AD-40 (Q3).
 
+David approved this one after G-2a on 2026-11-04 ("David approves adding `vite@8.3.5` as the fifth devDependency"):
+
+- **D-6, devDependencies and exact versions:**
+  - the five devDependencies are `prettier@3.9.10`, `markdownlint-cli2@0.24.0`, `vitest@5.1.0`, `@playwright/test@1.64.1` and `vite@8.3.5`, each pinned exactly and installed in one approved step (G-2b);
+  - **why `vite` is needed:** Vitest 5 declares `vite` as a non-optional peer dependency (`peerDependenciesMeta.vite.optional: false`, accepted range `^6.4.0 || ^7.0.0 || ^8.0.0`). Vitest uses Vite to transform and run test files, so the peer must be installed. `vite@8.3.5` is MIT-licensed and needs Node.js `^20.19.0 || >=22.12.0`, which 24.13.0 meets;
+  - recorded as AD-41.
+
 ### Open questions for David
 
 David answered Q1–Q3 on 2026-11-04, when he approved this spec and the plan: all three are **approved**.
@@ -137,7 +150,9 @@ David answered Q1–Q3 on 2026-11-04, when he approved this spec and the plan: a
   - `@playwright/test` (locked stack, TR-11).
 
   Nothing else is added: no `eslint-config-prettier` (the Next.js ESLint configs have no formatting rules), no `vite-tsconfig-paths`, no `npm-run-all`. Recommendation: approve.
-- **Q2, version rule.** Use the latest stable version of each, looked up at execution time from registry metadata only (G-2a) and pinned exactly (`--exact`), like `next` and `react`. Recommendation: approve. The exact versions are recorded in the verification note.
+
+  **Updated after G-2a (D-6):** a fifth devDependency, `vite`, is added because Vitest 5 declares it as a non-optional peer dependency. David approved it on 2026-11-04. The list is now five packages.
+- **Q2, version rule.** Use the latest stable version of each, looked up at execution time from registry metadata only (G-2a) and pinned exactly (`--exact`), like `next` and `react`. Recommendation: approve. The exact versions are recorded in the verification note. G-2a (2026-11-04) found these latest stable versions: `prettier` 3.9.10, `markdownlint-cli2` 0.24.0, `vitest` 5.1.0, `@playwright/test` 1.64.1 and `vite` 8.3.5 (D-6).
 - **Q3, recording D-1…D-5.** Chunk 1 recorded David's spec decisions as new decision-register entries with one decision-log row each (AD-33…AD-35). Should D-1…D-5 be recorded the same way, as **AD-36…AD-40**, on `chunk-02-quality-tooling` right after the branch is created? Recommendation: yes, because CLAUDE.md says David's decisions go in the decision log.
 - **Q4, untracked third-party files: closed.** `.agents/skills/code-review/` and `skills-lock.json` appeared untracked on 2026-11-04. David removed them the same day, and both were checked as absent. Nothing is left to decide, and the number is kept so that references stay stable.
 
@@ -153,8 +168,8 @@ David answered Q1–Q3 on 2026-11-04, when he approved this spec and the plan: a
 
 | ID | Task | What goes over the network |
 | --- | --- | --- |
-| G-2a | 2.1 | Registry metadata only: `npm view <package> version` for the four packages, plus each one's README to check for telemetry. Nothing is downloaded or run. |
-| G-2b | 2.1 | `yarn add --dev --exact` of the four exact versions approved at G-2a (downloads the packages and their dependencies) |
+| G-2a | 2.1 | Registry metadata only: `npm view <package> version` for the four packages, plus each one's README to check for telemetry. Nothing is downloaded or run. **Done 2026-11-04.** It also found Vitest's `vite` peer dependency, and `vite` was then looked up the same way (D-6). |
+| G-2b | 2.1 | `yarn add --dev --exact` of the five exact versions in D-6 (AD-41), in one step (downloads the packages and their dependencies) |
 | G-2c | 2.3 | Only if the installed Playwright needs a Chromium build that isn't already in `%LOCALAPPDATA%\ms-playwright` (today: `chromium-1223` and `chromium-1228`, with headless shells): `yarn playwright install chromium` |
 
 **Risks:**

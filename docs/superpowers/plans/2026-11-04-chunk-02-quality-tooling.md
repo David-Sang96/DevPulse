@@ -1,20 +1,20 @@
 # Chunk 2 — Quality tooling and test runners: implementation plan
 
-> **Execution:** inline in this session, task by task, by the assistant itself. While OD-15 is unresolved, no implementer or reviewer subagents are dispatched (chunk-workflow skill, Steps 3 and 6). Steps use checkbox (`- [ ]`) syntax. David approved this plan and its spec on 2026-11-04, after the Step 4 self-review revisions. Each go-ahead (G-2a, G-2b, G-2c) still needs his separate approval when it comes up.
+> **Execution:** inline in this session, task by task, by the assistant itself. While OD-15 is unresolved, no implementer or reviewer subagents are dispatched (chunk-workflow skill, Steps 3 and 6). Steps use checkbox (`- [ ]`) syntax. David approved this plan and its spec on 2026-11-04, after the Step 4 self-review revisions. Each go-ahead (G-2a, G-2b, G-2c) still needs his separate approval when it comes up. G-2a ran on 2026-11-04. The plan was then revised to add `vite` (spec D-6, AD-41), and that revision awaits David's review before G-2b.
 
 **Goal:** `yarn typecheck`, `lint`, `lint:md`, `format`, `format:check`, `test`, `test:e2e`, `check` and `verify` all work and pass on the clean repository.
 
 **Architecture:** Each tool is configured by one small file at the repository root and called from a `package.json` script. Unit tests sit next to their code (`src/**/*.test.ts`). Time-zone tests (`*.tz.test.ts`) run in a Vitest project that sets `TZ` in the config. E2E tests (`tests/e2e/*.spec.ts`) run against a production build on `127.0.0.1:3100`. `yarn check` and `yarn verify` chain the scripts with `&&`.
 
-**Tech stack:** Node.js 24.13.0, Yarn 4.12.0, Next.js 16.4.4, TypeScript 5.9.3, ESLint 9, and these new devDependencies (exact versions looked up at G-2a): `prettier`, `markdownlint-cli2`, `vitest`, `@playwright/test`.
+**Tech stack:** Node.js 24.13.0, Yarn 4.12.0, Next.js 16.4.4, TypeScript 5.9.3, ESLint 9, and these five new devDependencies, at the exact versions found at G-2a (spec D-6, AD-41): `prettier@3.9.10`, `markdownlint-cli2@0.24.0`, `vitest@5.1.0`, `@playwright/test@1.64.1` and `vite@8.3.5`.
 
-**Spec:** [2026-11-04-chunk-02-quality-tooling-design.md](../specs/2026-11-04-chunk-02-quality-tooling-design.md). Read it first. David's decisions D-1…D-5 and his answers to Q1–Q3 (all approved) are in its section 4; Q4 is closed.
+**Spec:** [2026-11-04-chunk-02-quality-tooling-design.md](../specs/2026-11-04-chunk-02-quality-tooling-design.md). Read it first. David's decisions D-1…D-6 and his answers to Q1–Q3 (all approved) are in its section 4; Q4 is closed.
 
 ## Global constraints
 
 - **Branch:** `chunk-02-quality-tooling`, made from `main` at `23f9134`, which contains the restored CLAUDE.md sections. No remote changes, no push, no merge.
 - **Downloads:** only at G-2a, G-2b and G-2c (spec section 5), each with David's go-ahead at that moment.
-- **Versions:** each new devDependency pinned exactly (`--exact`), at the version David approved at G-2a.
+- **Versions:** each of the five new devDependencies is pinned exactly (`--exact`), at the version in spec D-6 (AD-41).
 - **Ports:** E2E uses `127.0.0.1:3100` only (`E2E_PORT = 3100`). `yarn dev` keeps port 3000.
 - **Telemetry:** every Next.js call goes through `yarn` (AD-35).
 - **Exit codes:** every "exits 0" or "exits ≠0" below is read from the real process exit code (`$LASTEXITCODE` in PowerShell, `$?` in Git Bash), never inferred from the output.
@@ -60,8 +60,18 @@
 - Produces: the scripts `typecheck`, `lint:md`, `format` and `format:check`, which Task 4 chains.
 
 - [ ] **Step 1: Baseline.** Run `yarn lint` and `yarn tsc --noEmit`. Both exit 0. Record the output.
-- [ ] **Step 2: G-2a (go-ahead).** With `npm_config_update_notifier=false` set for the command (as in Chunk 1), run `npm view <pkg> version` and read each README for telemetry, for `prettier`, `markdownlint-cli2`, `vitest` and `@playwright/test`. Show David the four exact versions. Stop until David approves them.
-- [ ] **Step 3: G-2b (go-ahead).** Run `yarn add --dev --exact prettier@<v> markdownlint-cli2@<v> vitest@<v> @playwright/test@<v>`. Then `git status --porcelain` shows only `package.json` and `yarn.lock` changed. All four devDependencies come from this one approved install, so `vitest` and `@playwright/test` land in the 2.1 commit even though Tasks 2 and 3 use them.
+- [x] **Step 2: G-2a (go-ahead), done 2026-11-04.** With `npm_config_update_notifier=false` set for the command (as in Chunk 1), run `npm view <pkg> version` and read each README for telemetry, for `prettier`, `markdownlint-cli2`, `vitest` and `@playwright/test`. Show David the four exact versions. Stop until David approves them.
+  - **Result:** all latest stable, with no telemetry mentioned in any README:
+    - `prettier` 3.9.10 (MIT, Node `>=14`);
+    - `markdownlint-cli2` 0.24.0 (MIT, Node `>=22`);
+    - `vitest` 5.1.0 (MIT, Node `^22.12.0 || ^24.0.0 || >=26.0.0`);
+    - `@playwright/test` 1.64.1 (Apache-2.0, Node `>=20`).
+  - **The lookup found** that Vitest 5 declares `vite` as a non-optional peer dependency. David approved `vite@8.3.5` (MIT, Node `^20.19.0 || >=22.12.0`) as a fifth devDependency (spec D-6, AD-41).
+- [ ] **Step 3: G-2b (go-ahead).** Run `yarn add --dev --exact prettier@3.9.10 markdownlint-cli2@0.24.0 vitest@5.1.0 @playwright/test@1.64.1 vite@8.3.5`.
+  - Then `git status --porcelain` shows only `package.json` and `yarn.lock` changed.
+  - `package.json` lists the five versions without `^` or `~`.
+  - `yarn explain peer-requirements` lists `vitest`'s `vite` requirement; `yarn explain peer-requirements <its hash>` reports it satisfied.
+  - All five devDependencies come from this one approved install, so `vitest`, `vite` and `@playwright/test` land in the 2.1 commit even though Tasks 2 and 3 use them.
 - [ ] **Step 4: Typecheck, failing first (D-4).**
   1. **Clean checkout, red.** Delete the ignored, regenerable `.next/` build cache. `yarn tsc --noEmit` → exits ≠0 and names `LayoutProps`.
   2. **Clean checkout, green.** Add `"typecheck": "next typegen && tsc --noEmit"`. `yarn typecheck` → exits 0.
