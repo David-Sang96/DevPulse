@@ -1045,3 +1045,51 @@ A record of what has actually run. The task steps above stay unticked here; Task
   - the original Phase 1 console output is lost (F1);
   - lint has not run (Task 6).
 - **Next:** Task 5, which is **not approved yet**.
+
+### 2026-11-04: Task 5 (roadmap 1.5)
+
+- **Approval:** David approved Task 5, Steps 1–3, then the Step 2 retry, Step 4 (David's own checks) and Step 5, each separately.
+- **Before Step 1, two findings were reported and the run stopped:**
+  - `CLAUDE.md` had an uncommitted change not made in this session (see below);
+  - `%LOCALAPPDATA%\Temp\devpulse-chunk01` had disappeared.
+  - Another local DevPulse session (`devpulse-d7`) had been active. It was confirmed ended (no longer listed by `ListAgents`) before Task 5 ran.
+- **Evidence-retention deviation (D3):** the folder's earlier contents disappeared outside this session: the cleaned scaffold, the `check-node-*` fixtures, and `yarn-dist` with the G-2 tarball and extracted `package/`. They were not recovered, and nothing in them was re-verified. The folder was recreated for Task 5's logs.
+- **Step 1:**
+  - `$CLEAN yarn dev`, run in the background, logged to `$TMP/dev.log`: `Local: http://127.0.0.1:3000`, `Network: http://127.0.0.1:3000`, `✓ Ready in 403ms`;
+  - `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000` printed `200`;
+  - `grep -i error "$TMP/dev.log"` printed nothing.
+- **Step 2, accepted by David with a documented limitation:**
+  - **The planned command failed:** `Get-NetTCPConnection -LocalPort 3000 -State Listen | Select-Object LocalAddress` returned "No matching MSFT_NetTCPConnection objects found". Without the state filter, the cmdlet listed `127.0.0.1:3000`, owned by the server process, with an inconsistent state (`Closed`, `FinWait1` or blank).
+  - **First run, cross-checks:** `netstat -ano` once showed `TCP 127.0.0.1:3000 0.0.0.0:0 LISTENING` for the server process and other times showed no entry; no TCPv6 entry on port 3000. Two diagnostic local requests, beyond the plan's single one, both returned HTTP 200: `http://127.0.0.1:3000`, and `http://localhost:3000`, which connected via `127.0.0.1`.
+  - **Retry:** a new server, logged to `$TMP/dev-step2-retry.log`, with Next.js server process 2812. Five `netstat -ano -p tcp` samples a second apart showed no entry, no entry, `127.0.0.1:3000 … FIN_WAIT_1 2812` twice, then `CLOSED 2812`. `netstat -ano -p tcpv6` showed no entry on port 3000. The raw output is in `$TMP/task5-step2-netstat.log`.
+  - **Result:** the only socket on port 3000 is `127.0.0.1:3000`, owned by the Next.js server. No IPv4 wildcard or IPv6 listener appeared in any sample. Windows never reliably reported the `LISTENING` state on this PC, through either tool.
+- **Step 3:**
+  - `Get-CimInstance Win32_Process` found three `node.exe` processes with `next` in the command line: 4408 (`next dev --hostname 127.0.0.1`), 12320 (`start-server.js`) and 18000 (a Turbopack loader worker).
+  - `Get-NetTCPConnection -OwningProcess 4408,12320,18000 -State Established` showed only `127.0.0.1:52621 ↔ 127.0.0.1:52622`, between 12320 and 18000. **External connections: 0**, in two snapshots about a minute apart; `netstat` agreed, and there were no UDP endpoints.
+  - **Limitation:** point-in-time snapshots, not a capture.
+- **Step 4, David's checks:**
+  - **In a new terminal of David's own:** `where yarn` (`C:\nvm4w\nodejs\yarn`, `yarn.CMD`, then `C:\Users\user\AppData\Roaming\npm\yarn`, `yarn.cmd`), `node -v` `v24.13.0`, `yarn -v` `4.12.0`, `yarn config get enableTelemetry` `false`, and `yarn next telemetry status` `Status: Disabled`.
+  - **In the browser:** David opened `http://127.0.0.1:3000`; the console showed no red errors.
+  - **Stopping the server:** `taskkill /PID 24920 /T /F` stopped the tree (`sh.exe` 24920, Yarn 15804, `cmd.exe` 6140, Next.js 4812 and 2812). Afterwards there were no `next` or `yarn` node processes and nothing on port 3000 (`netstat` for TCP and TCPv6, and `Get-NetTCPConnection`).
+- **`CLAUDE.md` episode, before Step 5:**
+  - **The change:** an uncommitted edit, not made in this session, last modified 2026-11-04 11:38:40 (SHA-256 `da0546bd…`). It added a "Clean code" section, changed workflow step 8 to run `/code-review`, and added a "Pre-PR code review" section.
+  - **Review findings:** neither section had a decision-log row. The code-review text conflicts with OD-15 (Pending) and with `CLAUDE.md` lines 99 and 124, the skill's Step 6.2 and roadmap line 84.
+  - **David's decisions:**
+    - save both proposals unchanged outside the repository, as `$TMP/CLAUDE.md.proposed` (`da0546bd…`), `$TMP/CLAUDE.md.proposals.diff` and `$TMP/CLAUDE.md.proposals-README.txt`;
+    - restore `CLAUDE.md` byte-for-byte from HEAD `908c773`, done with `git restore --source=908c773 --worktree`, giving SHA-256 `c013dfd3…`, with nothing staged;
+    - keep OD-15 Pending throughout Chunk 1;
+    - defer both proposals until after Chunk 1;
+    - review Chunk 1 with the structured **self-review, not independent**, classified as critical, high, medium or low. No `/code-review`, no reviewer subagents and no AI review service.
+  - **Verification:** HEAD plus the saved diff rebuilds the proposed file byte-for-byte, outside the repository.
+- **Step 5:**
+  - The plan's command block, run verbatim through the execution procedure with `<baseline-commit>` = `1121f49495a337bb74f9704bc1cfec073937fd5c` (from `docs/BASELINE.md`, equal to `main`).
+  - **Checker output:** `OK README.md`, `OK CLAUDE.md`, `OK docs/REQUIREMENTS.md`, `OK docs/ARCHITECTURE.md`, `OK docs/IMPLEMENTATION_ROADMAP.md`, `OK .claude/skills/chunk-workflow/SKILL.md`, `BASELINE DIFF OK`; exit 0.
+  - **Cleanup:** the trap removed `$TMP/baseline-export` and `$TMP/check-baseline-diff.mjs`. The output is saved in `$TMP/task5-step5-baseline.log`.
+  - **The `git diff` shown for the record:** `CLAUDE.md` 1 line, `README.md` 1, `docs/IMPLEMENTATION_ROADMAP.md` 3, `docs/ARCHITECTURE.md` +3, `docs/REQUIREMENTS.md` +3; 5 files changed, 11 insertions, 5 deletions. `SKILL.md` is unchanged.
+- **Limitations:**
+  - Step 2's `LISTENING` state is not reliably reported by Windows on this PC;
+  - no OS-level network capture;
+  - the D3 evidence loss;
+  - the author of the `CLAUDE.md` edits is unconfirmed;
+  - the earlier limitations (the 76 packages without checksums, the lost Phase 1 output) still apply.
+- **Next:** Task 6, which is **not approved yet**.
