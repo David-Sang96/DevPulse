@@ -10,14 +10,14 @@
 | --- | --- |
 | Total phases | 10 |
 | Total chunks | 36 |
-| Completed chunks | 0 |
+| Completed chunks | 1 |
 | In-progress chunks | 0 |
 | Blocked chunks (⛔) | 5 (Chunks 12, 27, 28, 31, 32) |
-| Remaining chunks | 36 |
-| Last updated | 2026-11-03 |
+| Remaining chunks | 35 |
+| Last updated | 2026-11-04 |
 
 - **Revision:** r4 (2026-11-03), applying the independent review of r3.
-- **Roadmap start:** waiting for David's baseline approval, recorded as **BL-01** in the [REQUIREMENTS decision log](REQUIREMENTS.md#decision-log) under its baseline approval procedure.
+- **Roadmap start:** BL-01 approved by David on 2026-11-03 (see the [REQUIREMENTS decision log](REQUIREMENTS.md#decision-log)); Chunk 1 is complete on `chunk-01-toolchain`, awaiting David's merge approval.
 - **Article simplification:** incomplete until OD-01 is approved and Chunk 32 is verified. The `none` and `fake` providers do not count.
 - **Live collection:** nothing is collected in the live checkout until retention is active: OD-04 and OD-05 resolved, and Chunk 27 complete, verified and deployed (AD-32). Real use can't begin before then, and Chunks 30, 33, 34, 35 and 36 can't complete before then. Chunk 29 itself doesn't wait for retention.
 - **Open decisions:** OD-01…OD-19 and assumptions A-01…A-06 are all Pending.
@@ -163,7 +163,7 @@ Difficulty rises phase by phase. The easier chunks inside later phases (6, 16 an
 
 **Order:** task 1.1 runs before anything else writes to the six baseline files, including the roadmap's own Status line. The skill (Step 5) sets this chunk's Status to `In progress.` only after the baseline commit, on `chunk-01-toolchain`.
 
-- [ ] **1.1** Pre-flight and baseline commit.
+- [x] **1.1** (1121f49, c21abe3) Pre-flight and baseline commit.
   - Check that BL-01 is resolved and that the six baseline files still match the hashes in `docs/BASELINE.md`.
   - Run `git init -b main`, with no remote (AD-20).
   - Add `.gitattributes` (`* text=auto eol=lf`) and `.editorconfig` (`end_of_line = lf`).
@@ -174,7 +174,7 @@ Difficulty rises phase by phase. The easier chunks inside later phases (6, 16 an
   - Test: before committing, the hashes match; after committing, every committed baseline blob matches its recorded hash; a dummy file in `data/` and a `.env.local` don't appear as untracked, while a `.env.example` does.
   - Acceptance: `git log` shows the baseline commit first, `git remote -v` prints nothing, and `docs/BASELINE.md` records the commit hash on `chunk-01-toolchain`.
 
-- [ ] **1.2** Scaffold outside the repository, privacy first.
+- [x] **1.2** (d7ae49a, db17ee9) Scaffold outside the repository, privacy first.
   - Run `create-next-app` non-interactively (`--yes`, `--disable-git`, `--skip-install`, with `NEXT_TELEMETRY_DISABLED=1` set) in a temporary folder **outside** the repository: TypeScript, Tailwind CSS v4, ESLint, App Router, a `src/` directory and the `@/*` alias.
   - Before merging, list every emitted file. Remove `next/font/google` (use system or local fonts). Drop the scaffold's README, and any `AGENTS.md`, `CLAUDE.md` or `.yarnrc.yml`.
   - Merge rule: copy only files that don't already exist; never copy `.git/`; **never overwrite a tracked file**; merge `.gitignore` and `package.json` by hand. The package name is `devpulse`.
@@ -182,7 +182,7 @@ Difficulty rises phase by phase. The easier chunks inside later phases (6, 16 an
   - Test: the list of emitted files is recorded; no tracked file changed (`git status` shows only additions plus the hand-merged `.gitignore`); no `next/font/google` remains.
   - Acceptance: `package.json` is named `devpulse`, `tsconfig.json` has `"strict": true`, Tailwind v4 is configured, and the `@/*` alias is set.
 
-- [ ] **1.3** Pin the toolchain, now that `package.json` exists.
+- [x] **1.3** (d9c7d9c, 8f619d8) Pin the toolchain, now that `package.json` exists.
   - Pin the exact Node.js version (AD-18; the PC currently has 24.13.0) in `engines`, and in `.nvmrc` as documentation only.
   - Add a plain-JavaScript version check, `scripts/check-node.mjs`, so it runs without `tsx`.
   - Commit Yarn 4 as a release file (`yarnPath`), and set `packageManager` as the Chunk 1 spec decides (N-17).
@@ -190,7 +190,7 @@ Difficulty rises phase by phase. The easier chunks inside later phases (6, 16 an
   - Test: the version check passes on the pinned version and fails with a clear message on any other; `node .yarn/releases/yarn-4.*.cjs -v` and `yarn -v`, in the repository in a fresh shell, report the committed release.
   - Acceptance: `yarn config get enableTelemetry` prints `false`, and no Corepack prompt or download happens.
 
-- [ ] **1.4** Install, then privacy checks, then the first build.
+- [x] **1.4** (bbbb1f5, 841a80e) Install, then privacy checks, then the first build.
   - Run `yarn install` with the committed release.
   - Disable Next.js telemetry for **every** Next.js invocation, including the bare CLI; the Chunk 1 spec picks and verifies a reliable method (AD-28, P-02). Prefer a per-project setting kept in the repository. `next telemetry disable` writes a per-user setting outside the project, so it is not assumed to be the project-level solution.
   - Bind dev and start to `127.0.0.1`.
@@ -198,13 +198,21 @@ Difficulty rises phase by phase. The easier chunks inside later phases (6, 16 an
   - Test: `yarn next telemetry status` reports disabled; a search of the source and build output finds no `next/font/google` and no font or telemetry hosts; `git status --porcelain` is clean after install and build.
   - Acceptance: the dev server is not reachable from another device.
 
-- [ ] **1.5** Run, and check the baseline is untouched.
+- [x] **1.5** (f8a35ec) Run, and check the baseline is untouched.
   - Test: `yarn dev` serves the default page at `http://127.0.0.1:3000` with no console errors. Before the skill's Step 7, `git diff <baseline-commit> -- <six baseline files>` shows changes only to: Chunk 1's Status and progress-summary lines in the roadmap, and the "waiting for BL-01" status wording in README.md and CLAUDE.md.
   - Acceptance: everything after the baseline commit is on `chunk-01-toolchain`, ready for David's approval to merge.
 
 **Manual verification:** Open the default page in a browser. In a fresh terminal, check the pinned versions and that telemetry is off.
 
-**Status:** Not started.
+*2026-11-04. Checked by hand: David opened `http://127.0.0.1:3000` while `yarn dev` ran, and the browser console showed no red errors. In a new terminal of David's own: `where yarn` listed the Corepack shim first and the global Yarn 1.22.22 second; `node -v` printed `v24.13.0`; `yarn -v` printed `4.12.0`; `yarn config get enableTelemetry` printed `false`; `yarn next telemetry status` reported Disabled. The assistant recorded that `yarn dev` and `yarn start` each served HTTP 200 on `127.0.0.1:3000`, and found 0 external established connections in point-in-time snapshots.*
+
+*Not checked: reachability from another device was not independently tested. David accepted the loopback evidence for 1.4: `--hostname 127.0.0.1`, the server logs, only `127.0.0.1:3000` socket entries, and no wildcard or IPv6 listener. Windows reported the listener's state unreliably (`Get-NetTCPConnection` and `netstat` showed it as missing, `FIN_WAIT_1` or `CLOSED`). 76 lockfile entries have no checksum, including the five installed Windows binaries, so their integrity is unverified. The D3 temporary evidence (scaffold, fixtures, Yarn tarball) was lost outside the session. No OS-level network capture was performed. The Phase 1 install's console output was lost. The review was a self-review, not independent (OD-15 Pending).*
+
+*N-17 evidence: `packageManager` is `yarn@4.12.0`; `.yarnrc.yml` (with `yarnPath`) was written before any `yarn` command; the bootstrap variables were set per command; `corepack --version` printed 0.34.5; `node .yarn/releases/yarn-4.12.0.cjs -v` printed `4.12.0`; `yarn config get yarnPath` printed the committed release's path; `node .yarn/releases/yarn-4.12.0.cjs install --immutable` passed; `COREPACK_ENABLE_NETWORK=0 yarn -v` printed `4.12.0`; nothing was auto-pinned. The process tree for `yarn dev` showed Corepack's cached `yarn.js` running the script directly, with no separate process for the committed release. The two files are byte-identical (SHA-256 `1fe4e119…1702`). The `npm_execpath` check was replaced by the checks above (decision F3). It is not claimed that the committed release ran through `yarnPath`.*
+
+*N-20 evidence: the final ignore set is the Task 1 set plus the scaffold's own entries and `!.env.yarn`. Install and build created `yarn.lock` (committed, LF) and `.yarn/install-state.gz`, `node_modules/`, `.next/`, `next-env.d.ts` and `tsconfig.tsbuildinfo` (all ignored). The build did not rewrite `tsconfig.json`. `next dev` generated `AGENTS.md` in an AI-agent session until `agentRules: false` was set (decision F5). After a second install, build and dev, `git status --porcelain` printed nothing.*
+
+**Status:** Complete.
 
 ### Chunk 2 — Quality tooling and test runners
 
@@ -1547,3 +1555,4 @@ Permitted public APIs are covered by Chunk 12.
 | 2026-11-03 | Approval wording clarified: approving the planning documents approves only the baseline and lets Chunk 1 start, and gates now require a *resolved* decision under the Decision status rule. No requirements, assumptions, decisions or scope changed. |
 | 2026-11-03 | Revision r3, from the accepted independent review (record: `docs/superpowers/plans/2026-11-03-devpulse-planning-r3.md`): BL-01 baseline gate; Chunk 1 rewritten for the existing folder; dependency fixes (9, 10, 13, 16, 17, 27, 32, 36); new tasks 8.4, 27.5 and 31.4; Chunk 29 reshaped around a live checkout; source coverage and `no_sources`; in-run retries and a connectivity wait; privacy and content-leak rules; Windows-realistic lock, file and scheduling criteria; "Confirm before completion" assumption gates; new Pending decisions OD-11…OD-15 and wider OD-09 options. The weekly schedule, the retention period and the product scope are unchanged, and no decision is recorded as made. |
 | 2026-11-03 | Revision r4, from the independent review of r3 (record: `docs/superpowers/plans/2026-11-03-devpulse-planning-r4.md`). Both reviews were AI subagents on the same provider as the development assistant. Changes: Chunk 1 runs its baseline commit before any baseline edit, scaffolds outside the repository with privacy first, and pins the toolchain after `package.json` exists; `yarn verify` moves to 2.4; live collection waits for verified retention (AD-32, `retention_inactive`, `retention_cleanup_failed`); Chunk 30's OD-03 and Chunk 27 conditions cover tasks 30.3–30.5; go-aheads for 6.3 and 29.2; `**Spec must resolve:**` lines and the "Carried review findings" section; new Pending decisions OD-16…OD-19; wording and label fixes. Task count unchanged at 130; the ⛔ set is unchanged. No decision is recorded as made. |
+| 2026-11-04 | Chunk 1 executed: repository and baseline commit, Next.js 16.4.4 scaffold, Node.js 24.13.0 and Yarn 4.12.0 pinned, install, telemetry off through `.env.yarn`, `127.0.0.1` binding. Execution decisions D1–D6 and F1–F5 are recorded in the Chunk 1 plan's execution record. Self-review, not independent (OD-15 Pending). |
