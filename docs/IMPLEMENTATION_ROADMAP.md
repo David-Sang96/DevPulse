@@ -11,7 +11,7 @@
 | Total phases | 10 |
 | Total chunks | 36 |
 | Completed chunks | 1 |
-| In-progress chunks | 0 |
+| In-progress chunks | 1 |
 | Blocked chunks (⛔) | 5 (Chunks 12, 27, 28, 31, 32) |
 | Remaining chunks | 35 |
 | Last updated | 2026-11-04 |
@@ -240,7 +240,7 @@ Difficulty rises phase by phase. The easier chunks inside later phases (6, 16 an
 
 **Manual verification:** Run each command once in a fresh terminal and read the output.
 
-**Status:** Not started.
+**Status:** In progress.
 
 ### Chunk 3 — Application structure and shared foundations
 
