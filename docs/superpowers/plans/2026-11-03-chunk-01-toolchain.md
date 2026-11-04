@@ -1104,3 +1104,44 @@ A record of what has actually run. The task steps above stay unticked here; Task
 - **Not run:** `yarn check`, `yarn test` and `yarn test:e2e` don't exist until Chunk 2; markdownlint on the changed Markdown runs through VS Code in the later steps.
 - **Limitations:** both tools printed nothing, so there are no warnings to inspect; the lint run covers only the files ESLint's configuration includes, and the scaffold has little code to check.
 - **Next:** Task 6, Step 2 (self-review), which is **not approved yet**.
+
+### 2026-11-04: Task 6, Step 2 (self-review, not independent), complete
+
+- **Approval:** David approved Task 6, Step 2. OD-15 stays Pending: no `/code-review`, no reviewer subagents, no other AI review tool. This is a **self-review, not independent**.
+- **Reviewed:**
+  - `git diff main...chunk-01-toolchain` at HEAD `8adae01`: 27 files, +6,179/−15. Every changed text file was read in full, except the plan's execution record, which was cross-checked against the evidence.
+  - `.yarn/releases/yarn-4.12.0.cjs` and `yarn.lock` were verified by hash (`1fe4e119…1702` and `9a18b2da…1330`), with 434 approved-source entries and 357 of 433 checksums matching.
+  - Checked against: roadmap tasks 1.1–1.5; spec sections 3–7; TR-01, TR-02, TR-03 and TR-12; `CLAUDE.md`; the five Review-focus items; D1–D6, F1–F5 and AD-33–AD-35; and Task 5's results.
+- **Findings:** no critical or high findings.
+  - **Medium:**
+    - **M1** (new): `src/app/page.tsx` lines 25 and 32. Two external links lacked `rel="noopener noreferrer"`, which `CLAUDE.md` requires.
+    - **M2** (new): spec 6.1 says the committed release is what runs, but Task 5's process tree showed Corepack's cached `yarn.js` running `yarn dev` directly. The files are byte-identical (D1).
+    - **M3** (known, pending): stale README and `CLAUDE.md` status.
+    - **M4** (known): 1.4's acceptance rests on loopback evidence only.
+    - **M5** (known): 76 lockfile entries without checksums.
+    - **M6** (known): the D3 evidence loss.
+  - **Low:**
+    - **L1:** template branding and unused assets;
+    - **L2:** spec drift from the execution decisions;
+    - **L3:** the roadmap's 1.5 wording is narrower than spec 3;
+    - **L4:** `yarn start` was never run;
+    - **L5:** `check-node.mjs` isn't wired into a script, and `tsc` doesn't check `.mjs`;
+    - **L6:** no OS-level network capture;
+    - **L7:** the lost Phase 1 output;
+    - **L8:** YN0086 with lint passing;
+    - **L9:** disclosed extra requests;
+    - **L10:** create-next-app's user-level preferences file;
+    - **L11:** the Option A wording follow-up;
+    - **L12:** the deferred `CLAUDE.md` proposals;
+    - **L13:** markdownlint only through VS Code.
+- **David's decisions:**
+  - **M1:** add `rel="noopener noreferrer"` to the two links only; no homepage redesign.
+  - **M2:** record the real Corepack and Yarn process evidence; never claim the committed release ran through `yarnPath`.
+  - **M3:** update the README and `CLAUDE.md` status within the spec's Step 7 scope.
+  - **M4, M5, M6:** keep their limitations; no invented evidence or checksums.
+  - **L1:** defer to the dashboard chunk.
+  - **L4:** add one production `yarn start` check.
+  - **L2, L3, L6–L13:** carry forward.
+  - **Chunk 1 status:** David accepts the loopback evidence for 1.4's acceptance, with its limitations. Chunk 1 may be marked `Complete.` once every remaining check passes. Reachability from another device was **not** independently tested.
+  - **Baseline checker:** run it before the Step 3–4 doc edits. After those edits, its expected failures on the approved files are not regressions; the final state is verified by a diff review and unchanged-file checks instead. The checker is not modified.
+- **Next:** steps A–F of the approved Task 6 plan: this record, the M1 fix, the re-checks including L4, Steps 3–4, the execution record, then stop for merge approval.
