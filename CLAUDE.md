@@ -52,6 +52,21 @@ These principles carry Proposed decisions (AD-NN in `docs/ARCHITECTURE.md`). The
 - Access the database only through Drizzle, with a transaction for any multi-row write.
 - Name files in kebab-case, and keep modules small with a single responsibility.
 
+### Clean code
+
+Write code another developer can read and change easily:
+
+- Use names that say what something is or does (`publishedAt`, not `d`).
+- Keep functions small and doing one thing, at one level of detail, with few arguments.
+- No hidden side effects: a function does only what its name says.
+- Keep each piece of knowledge in one place; don't repeat logic.
+- Use comments to explain *why*, not *what*.
+- Use named constants, not magic numbers or strings.
+- Handle errors clearly; never swallow them silently.
+- Keep tests as readable as the code they test.
+- Leave code a little cleaner than you found it, within the current chunk's scope.
+- If a clean-code habit conflicts with "Abstractions" in Architecture principles, that rule wins.
+
 ## Testing rules
 
 - Write the test first, and watch it fail before writing the code.
@@ -127,6 +142,18 @@ Ask each time, and get explicit approval:
 9. Update the roadmap.
 10. Update the documentation.
 11. Stop and ask David when a product decision or an approval is needed.
+
+### Pre-PR code review
+
+**Status: inactive until OD-15 is resolved.** OD-15 is Pending in the decision log. Until a decision-log row resolves it (Decision status rule in the chunk-workflow skill): don't run `/code-review`, don't dispatch reviewer subagents, don't use any other AI review tool, and don't trigger automatic AI reviews. Step 8 stays the structured self-review described in the chunk-workflow skill, labelled as not independent. Restoring this section does not activate it. Once OD-15 is resolved, the policy below applies only as far as David's chosen option allows.
+
+- Before creating any PR or asking David to approve a merge into `main`, run the existing `/code-review` skill against the target branch. David approved this on 2026-11-04.
+- Fix all critical and high-severity findings, run relevant tests again, and repeat the review.
+- Include unresolved medium and low findings, with reasons, in the PR description or the request for David's merge approval.
+- Never create a PR or request merge approval while critical or high findings remain unresolved.
+- If code review cannot run, stop and ask David. Never skip it.
+- Don't use another AI review tool as a substitute, and don't use `ultra`, `--comment`, `--post` or `--fix`.
+- Creating a PR does not authorize merging. David must approve merging into `main`.
 
 ## Documentation rules
 
