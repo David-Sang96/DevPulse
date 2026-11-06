@@ -98,7 +98,7 @@ Write code another developer can read and change easily:
 - Never store original article text, HTML or webpage copies. Hold article content in memory only; retries fetch it again.
 - Logs, `last_error` and run records hold error codes and safe messages only, never article content or raw provider output.
 - Keep telemetry off (Yarn and Next.js) and use local or system fonts. At run time, the app makes no outbound requests except to approved sources and an approved provider. Tooling downloads (packages, browsers) and source checks are governed by their own go-aheads.
-- Never send `.env.local`, databases, backups, logs or anything in `data/` to any external service. Any external AI code review follows OD-15; until it is resolved, there is none.
+- Never send `.env.local`, databases, backups, logs or anything in `data/` to any external service. External AI code review follows OD-15 (option (a), resolved 2026-11-06): only `/code-review` as described in "Pre-PR code review", and none of these files is ever sent to it.
 - Render article text only as plain text. Never use `dangerouslySetInnerHTML`.
 - Render links only for `http`/`https` URLs, with `rel="noopener noreferrer"`.
 - Keep secrets only in `.env.local`. Never log them, commit them or store them in the database.
@@ -123,7 +123,7 @@ Ask each time, and get explicit approval:
 - merging anything into `main`;
 - updating the live checkout (`yarn live:update`);
 - adding a git remote or pushing anywhere;
-- sending project material to any external AI review, or dispatching implementer or reviewer subagents (OD-15);
+- sending project material to any external AI review other than the `/code-review` runs approved under OD-15, or dispatching implementer subagents or any other reviewer subagents;
 - switching retention to active in the live checkout;
 - starting a ⛔ chunk;
 - marking a chunk complete while its "Decision before completion" or "Confirm before completion" is still pending;
@@ -145,14 +145,14 @@ Ask each time, and get explicit approval:
 
 ### Pre-PR code review
 
-**Status: inactive until OD-15 is resolved.** OD-15 is Pending in the decision log. Until a decision-log row resolves it (Decision status rule in the chunk-workflow skill): don't run `/code-review`, don't dispatch reviewer subagents, don't use any other AI review tool, and don't trigger automatic AI reviews. Step 8 stays the structured self-review described in the chunk-workflow skill, labelled as not independent. Restoring this section does not activate it. Once OD-15 is resolved, the policy below applies only as far as David's chosen option allows.
+**Status: active.** OD-15 was resolved on 2026-11-06 (option (a), decision log). Use only the built-in `/code-review` skill at effort level `high`, not `code-review:code-review`. No other AI review tool, no automatic AI reviews, and no reviewer subagents other than those `/code-review` runs itself.
 
-- Before creating any PR or asking David to approve a merge into `main`, run the existing `/code-review` skill against the target branch. David approved this on 2026-11-04.
+- Before creating any PR or asking David to approve a merge into `main`, run the existing `/code-review` skill at effort level `high` against the target branch. David approved this on 2026-11-04.
 - Fix all critical and high-severity findings, run relevant tests again, and repeat the review.
 - Include unresolved medium and low findings, with reasons, in the PR description or the request for David's merge approval.
 - Never create a PR or request merge approval while critical or high findings remain unresolved.
 - If code review cannot run, stop and ask David. Never skip it.
-- Don't use another AI review tool as a substitute, and don't use `ultra`, `--comment`, `--post` or `--fix`.
+- Don't use another AI review tool as a substitute, and don't use `ultra`, `max`, `--comment`, `--post` or `--fix`.
 - Creating a PR does not authorize merging. David must approve merging into `main`.
 
 ## Documentation rules

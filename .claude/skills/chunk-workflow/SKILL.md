@@ -102,7 +102,7 @@ Create any missing directories. Steps 1–4 write nothing to the six baseline fi
 6. One section per `**Spec must resolve:**` item: how it is resolved, or how it will be verified on the real PC.
 7. The manual verification plan, including any real Windows checks needed under the scheduling proof rule in `CLAUDE.md`.
 
-**Plan:** `docs/superpowers/plans/YYYY-MM-DD-chunk-NN-<slug>.md`. It records *how*. If the `superpowers:writing-plans` skill is available, use it, but ignore its "REQUIRED SUB-SKILL: subagent-driven-development" header. Execute the plan inline in this session, and never dispatch implementer or reviewer subagents while OD-15 is unresolved.
+**Plan:** `docs/superpowers/plans/YYYY-MM-DD-chunk-NN-<slug>.md`. It records *how*. If the `superpowers:writing-plans` skill is available, use it, but ignore its "REQUIRED SUB-SKILL: subagent-driven-development" header. Execute the plan inline in this session, and never dispatch implementer subagents. Reviewer agents run only inside `/code-review`, as OD-15 allows.
 
 1. The files to create or modify, with their interfaces: exact names and types.
 2. Test-first steps for every task: the failing test, how to run it, the implementation, how to run it again.

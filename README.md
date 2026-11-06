@@ -123,7 +123,7 @@ This is what DevPulse will need once it is built:
 - The planning documents were written on 2026-11-03 and revised to r4 the same day. David approved them as the planning baseline (BL-01) on 2026-11-03.
 - A git repository with one remote, `origin` (`https://github.com/David-Sang96/DevPulse.git`), holds the baseline and Chunk 1: a Next.js 16.4.4 scaffold, Node.js 24.13.0 and Yarn 4.12.0 pinned, telemetry off, and the dev server bound to 127.0.0.1. No DevPulse feature exists yet.
 - Chunk 2 (quality tooling) is complete on the branch `chunk-02-quality-tooling`, which is not yet merged into `main`: Prettier, markdownlint, Vitest, Playwright, and the scripts `yarn check` and `yarn verify`. The automated checks and David's manual verification of 2026-11-06 passed. The Chunk 2 note in the [roadmap](docs/IMPLEMENTATION_ROADMAP.md) lists what was not checked and the known limitations.
-- The roadmap has 10 phases and 36 chunks. 5 chunks are blocked until David makes a decision. The open decisions (OD-01…OD-19) and assumptions (A-01…A-06) are listed in [REQUIREMENTS.md](docs/REQUIREMENTS.md); none has been decided yet.
+- The roadmap has 10 phases and 36 chunks. 5 chunks are blocked until David makes a decision. The open decisions (OD-01…OD-19) and assumptions (A-01…A-06) are listed in [REQUIREMENTS.md](docs/REQUIREMENTS.md); only OD-15 has been decided (2026-11-06), and no assumption is confirmed yet.
 
 ## Development commands
 
