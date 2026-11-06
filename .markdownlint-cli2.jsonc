@@ -1,0 +1,7 @@
+{
+  // Long lines are the house style for DevPulse docs (spec 2.1, D-3).
+  "config": { "MD013": false },
+  "globs": ["**/*.md"],
+  "gitignore": true,
+  "ignores": ["node_modules/**", ".next/**", ".yarn/**"],
+}
