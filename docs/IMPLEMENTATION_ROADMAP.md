@@ -14,7 +14,7 @@
 | In-progress chunks | 1 |
 | Blocked chunks (⛔) | 5 (Chunks 12, 27, 28, 31, 32) |
 | Remaining chunks | 35 |
-| Last updated | 2026-11-04 |
+| Last updated | 2026-11-06 |
 
 - **Revision:** r4 (2026-11-03), applying the independent review of r3.
 - **Roadmap start:** BL-01 approved by David on 2026-11-03 (see the [REQUIREMENTS decision log](REQUIREMENTS.md#decision-log)); Chunk 1 is complete and merged into `main` (merge commit 1dc014d).
@@ -222,23 +222,33 @@ Difficulty rises phase by phase. The easier chunks inside later phases (6, 16 an
 
 **Dependencies:** 1
 
-- [ ] **2.1** Add Prettier and the scripts `lint`, `format`, `typecheck` (`tsc --noEmit`) and `lint:md` (markdownlint-cli2, a Proposed supporting library under AD-17) for the docs.
+- [x] **2.1** (7ec2ca1, b6b64ac, f1bac66) Add Prettier and the scripts `lint`, `format`, `format:check`, `typecheck` (`next typegen && tsc --noEmit`) and `lint:md` (markdownlint-cli2, a Proposed supporting library under AD-17) for the docs.
   - Test: a deliberate type error makes `yarn typecheck` fail, and a deliberate markdown error makes `yarn lint:md` fail; removing them makes both pass.
-  - Acceptance: `yarn lint`, `yarn lint:md`, `yarn format --check` and `yarn typecheck` all exit with code 0 on the clean repository.
+  - Acceptance: `yarn lint`, `yarn lint:md`, `yarn format:check` and `yarn typecheck` all exit with code 0 on the clean repository.
 
-- [ ] **2.2** Configure Vitest (node environment, `@/*` alias) with one sample test, run by `yarn test`. Timezone-specific test runs are defined as Vitest projects that set `TZ` in the config, not in the shell, so they work in PowerShell and cmd.
+- [x] **2.2** (6c75c0a, a60c907) Configure Vitest (node environment, `@/*` alias) with one sample test, run by `yarn test`. Timezone-specific test runs are defined as Vitest projects that set `TZ` in the config, not in the shell, so they work in PowerShell and cmd.
   - Test: the sample test fails when its assertion is inverted and passes when it is restored.
   - Acceptance: `yarn test` exits with code 0.
 
-- [ ] **2.3** Configure Playwright (Chromium only) with a smoke test of the home page, run by `yarn test:e2e`.
+- [x] **2.3** (53ab420) Configure Playwright (Chromium only) with a smoke test of the home page, run by `yarn test:e2e`.
   - Test: the smoke test opens the home page and checks the page title.
   - Acceptance: `yarn test:e2e` exits with code 0 locally.
 
-- [ ] **2.4** Add `yarn check`, which runs the Node version check, typecheck, lint, `lint:md` and the unit tests, in that order; and `yarn verify`, which runs `yarn check` and then `yarn test:e2e`.
+- [x] **2.4** (6d412cb) Add `yarn check`, which runs the Node version check, typecheck, lint, `lint:md` and the unit tests, in that order; and `yarn verify`, which runs `yarn check` and then `yarn test:e2e`.
   - Test: a lint error makes `yarn check` fail, and a failing end-to-end test makes `yarn verify` fail.
   - Acceptance: `yarn check` and `yarn verify` exit with code 0 on the clean repository.
 
 **Manual verification:** Run each command once in a fresh terminal and read the output.
+
+*2026-11-06. Automated checks, run by the assistant on David's PC (Windows 11, Node.js 24.13.0, Yarn 4.12.0, Google Chrome 156.0.8078.80, Playwright 1.64.1). This is not David's manual verification. `yarn check` (the Node version check, `typecheck`, `lint`, `lint:md`, then 3 Vitest tests in two projects), `yarn verify` (the same, then 1 Playwright test), `yarn format:check` and `yarn build` each exited 0, and `git status --porcelain` was clean afterwards. During the tasks, `yarn test` and `yarn check` also exited 0 both directly in PowerShell and through `cmd /c`. Each task has failing-first evidence: a missing script, an unresolved `@/` alias, a missing base URL, a deliberate type error, markdown error or lint error, an inverted assertion and a wrong page title each made the matching command fail, and removing them made it pass.*
+
+*As built: Prettier (`yarn format`, `yarn format:check`) covers code and config only, and `.prettierignore` excludes Markdown, `.yarn/`, `yarn.lock`, `public/` and `.claude/`. markdownlint (`yarn lint:md`) covers every Markdown file, with line length (MD013) off and one inline MD038 exception on two lines of the planning-r2 plan (AD-43). `yarn typecheck` is `next typegen && tsc --noEmit` (AD-39), so it also works on a clean checkout. Vitest has two projects: `unit` runs `src/**/*.test.ts` in `UTC`, and `tz-kuala-lumpur` runs `src/**/*.tz.test.ts` in `Asia/Kuala_Lumpur`, with `TZ` set in `vitest.config.mts` and never in the shell. A permanent test, `src/vitest-unit-time-zone.test.ts`, checks that the `unit` project sees `process.env.TZ` equal to `UTC` and a UTC offset of 0. Playwright runs one Chromium project in the installed Google Chrome (`channel: "chrome"`, AD-42), against the production app, which it builds and serves on `127.0.0.1:3100` without reusing an existing server. No browser was downloaded on this PC.*
+
+*Not checked: David has not yet run the spec section 7 commands in a fresh terminal of his own (`yarn typecheck`, `yarn lint`, `yarn lint:md`, `yarn format:check`, `yarn test`, `cmd /c yarn test`, `yarn test:e2e`, `yarn check` and `yarn verify`). The Definition of done requires that manual verification, so Chunk 2 stays `In progress.` until it is recorded here. Nothing was checked on another operating system, with a later Chrome version, or with Playwright's own Chromium. The self-review was not independent (OD-15 Pending). It found no defect to fix. Two observations remain open: the smoke test runs without a seeded database, because none exists yet (Chunks 4 and 18), and running `yarn test:e2e` while `yarn dev` is running was not tested (spec risk N6).*
+
+*Known limitations, dependencies (recorded, not fixed): (1) Yarn prints the existing `YN0086` peer warning, because the peer requirement `pe0e3c6` is unmet: `@next/eslint-plugin-next` does not provide `eslint` to `@eslint-community/eslint-utils`. Chunk 1 already recorded it, and the Chunk 2 install did not introduce it. (2) 16 of the 124 lockfile entries added by the Chunk 2 install have no checksum, mainly the platform-specific `@rolldown/binding-*` packages. The Windows binary installed on this PC is `@rolldown/binding-win32-x64-msvc@1.2.16`. Its integrity is not recorded in `yarn.lock`, and its authenticity has not been verified.*
+
+*Known limitations, environment: (3) Chrome 156.0.8078.80 launched successfully with Playwright 1.64.1 on this PC, but later Chrome updates and other operating systems are unverified. (4) Time-zone behaviour was tested on this Windows PC only; other operating systems are unverified. This PC's own zone already resolves to `Asia/Kuala_Lumpur`, so the committed Kuala Lumpur test also passes without any configuration. (5) The permanent UTC test verifies the `unit` project's UTC setting, and a temporary mutation check that was not committed showed that the Kuala Lumpur project's `TZ` setting also takes effect. (6) Automated test success does not prove Windows Task Scheduler behaviour or any future collection workflow.*
 
 **Status:** In progress.
 
@@ -1556,3 +1566,4 @@ Permitted public APIs are covered by Chunk 12.
 | 2026-11-03 | Revision r3, from the accepted independent review (record: `docs/superpowers/plans/2026-11-03-devpulse-planning-r3.md`): BL-01 baseline gate; Chunk 1 rewritten for the existing folder; dependency fixes (9, 10, 13, 16, 17, 27, 32, 36); new tasks 8.4, 27.5 and 31.4; Chunk 29 reshaped around a live checkout; source coverage and `no_sources`; in-run retries and a connectivity wait; privacy and content-leak rules; Windows-realistic lock, file and scheduling criteria; "Confirm before completion" assumption gates; new Pending decisions OD-11…OD-15 and wider OD-09 options. The weekly schedule, the retention period and the product scope are unchanged, and no decision is recorded as made. |
 | 2026-11-03 | Revision r4, from the independent review of r3 (record: `docs/superpowers/plans/2026-11-03-devpulse-planning-r4.md`). Both reviews were AI subagents on the same provider as the development assistant. Changes: Chunk 1 runs its baseline commit before any baseline edit, scaffolds outside the repository with privacy first, and pins the toolchain after `package.json` exists; `yarn verify` moves to 2.4; live collection waits for verified retention (AD-32, `retention_inactive`, `retention_cleanup_failed`); Chunk 30's OD-03 and Chunk 27 conditions cover tasks 30.3–30.5; go-aheads for 6.3 and 29.2; `**Spec must resolve:**` lines and the "Carried review findings" section; new Pending decisions OD-16…OD-19; wording and label fixes. Task count unchanged at 130; the ⛔ set is unchanged. No decision is recorded as made. |
 | 2026-11-04 | Chunk 1 executed: repository and baseline commit, Next.js 16.4.4 scaffold, Node.js 24.13.0 and Yarn 4.12.0 pinned, install, telemetry off through `.env.yarn`, `127.0.0.1` binding. Execution decisions D1–D6 and F1–F5 are recorded in the Chunk 1 plan's execution record. Self-review, not independent (OD-15 Pending). |
+| 2026-11-06 | Chunk 2 executed on the branch `chunk-02-quality-tooling` (not merged): Prettier, markdownlint, Vitest and Playwright, with the scripts `typecheck`, `lint:md`, `format`, `format:check`, `test`, `test:e2e`, `check` and `verify` (commits 7ec2ca1, 6c75c0a, a60c907, 53ab420 and 6d412cb). Task 2.1 reworded: the acceptance check is `yarn format:check` (AD-36) and `typecheck` is `next typegen && tsc --noEmit` (AD-39). One formatting-only commit (b6b64ac, AD-40) touched the Chunk 1 file `scripts/check-node.mjs`, and markdownlint formatting-only fixes were made to the planning-r2 plan (f1bac66, AD-38, AD-43). The five devDependencies are `prettier`, `markdownlint-cli2`, `vitest`, `@playwright/test` and `vite`, pinned exactly (AD-41). Playwright runs in the installed Google Chrome instead of a downloaded browser (AD-42). A permanent UTC test was added to Task 2.2 at David's request (a60c907). Decisions AD-36…AD-43 are in the decision log. The status stays `In progress.` until David's manual verification is recorded. Self-review, not independent (OD-15 Pending). |
