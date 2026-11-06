@@ -1,6 +1,6 @@
 # Chunk 2 — Quality tooling and test runners: design
 
-**Status:** Approved by David on 2026-11-04 (chunk-workflow Step 4), after the Step 4 self-review revisions (H1, H2, M1–M3). Revised the same day after G-2a to add `vite` as a fifth devDependency (D-6, AD-41). Revised again to run the E2E tests in the installed Google Chrome (D-7, AD-42). The D-7 revision awaits David's review.
+**Status:** Approved by David on 2026-11-04 (chunk-workflow Step 4), after the Step 4 self-review revisions (H1, H2, M1–M3). Revised the same day after G-2a to add `vite` as a fifth devDependency (D-6, AD-41). Revised again to run the E2E tests in the installed Google Chrome (D-7, AD-42). David reviewed and approved the D-7 revision: his decision of 2026-11-04 is recorded as AD-42, and the revision was committed as `f9ffdaa` on 2026-11-06 at his request.
 
 **Roadmap:** [Chunk 2](../../IMPLEMENTATION_ROADMAP.md#chunk-2--quality-tooling-and-test-runners). **Plan:** [2026-11-04-chunk-02-quality-tooling.md](../plans/2026-11-04-chunk-02-quality-tooling.md).
 

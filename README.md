@@ -2,7 +2,7 @@
 
 DevPulse is a local-first developer news dashboard for a personal Windows PC. Every Monday morning it collects the previous week's developer news from RSS/Atom feeds and permitted public APIs. It then rewrites each article in simple English, so that junior developers can understand it.
 
-> **Status: Chunk 1 complete (repository and toolchain); Chunk 2 (quality tooling) is built and awaits David's manual verification — no DevPulse features yet.** See the [implementation roadmap](docs/IMPLEMENTATION_ROADMAP.md). Real article simplification needs an AI provider, and David has not chosen one yet. Until then, DevPulse will be able to collect articles but not simplify them. Real collection also waits until the two-month retention is implemented, verified and switched on.
+> **Status: Chunks 1 (repository and toolchain) and 2 (quality tooling) complete — no DevPulse features yet.** See the [implementation roadmap](docs/IMPLEMENTATION_ROADMAP.md). Real article simplification needs an AI provider, and David has not chosen one yet. Until then, DevPulse will be able to collect articles but not simplify them. Real collection also waits until the two-month retention is implemented, verified and switched on.
 
 ## Main goals
 
@@ -121,8 +121,8 @@ This is what DevPulse will need once it is built:
 ## Development status
 
 - The planning documents were written on 2026-11-03 and revised to r4 the same day. David approved them as the planning baseline (BL-01) on 2026-11-03.
-- A local git repository (no remote) holds the baseline and Chunk 1: a Next.js 16.4.4 scaffold, Node.js 24.13.0 and Yarn 4.12.0 pinned, telemetry off, and the dev server bound to 127.0.0.1. No DevPulse feature exists yet.
-- Chunk 2 (quality tooling) is built and committed on the branch `chunk-02-quality-tooling`, which is not merged into `main`: Prettier, markdownlint, Vitest, Playwright, and the scripts `yarn check` and `yarn verify`. The automated checks pass on this PC, but David's own manual verification is still pending, so the chunk is still In progress. The Chunk 2 note in the [roadmap](docs/IMPLEMENTATION_ROADMAP.md) lists what was not checked and the known limitations.
+- A git repository with one remote, `origin` (`https://github.com/David-Sang96/DevPulse.git`), holds the baseline and Chunk 1: a Next.js 16.4.4 scaffold, Node.js 24.13.0 and Yarn 4.12.0 pinned, telemetry off, and the dev server bound to 127.0.0.1. No DevPulse feature exists yet.
+- Chunk 2 (quality tooling) is complete on the branch `chunk-02-quality-tooling`, which is not yet merged into `main`: Prettier, markdownlint, Vitest, Playwright, and the scripts `yarn check` and `yarn verify`. The automated checks and David's manual verification of 2026-11-06 passed. The Chunk 2 note in the [roadmap](docs/IMPLEMENTATION_ROADMAP.md) lists what was not checked and the known limitations.
 - The roadmap has 10 phases and 36 chunks. 5 chunks are blocked until David makes a decision. The open decisions (OD-01…OD-19) and assumptions (A-01…A-06) are listed in [REQUIREMENTS.md](docs/REQUIREMENTS.md); none has been decided yet.
 
 ## Development commands

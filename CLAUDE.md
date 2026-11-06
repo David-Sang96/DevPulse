@@ -5,7 +5,7 @@
 - DevPulse is a local-first developer news dashboard for David's personal Windows PC. Every Monday at 08:00 Malaysia time (`Asia/Kuala_Lumpur`) it collects last week's developer news, then rewrites each article in simple English for junior developers.
 - Windows Task Scheduler runs the collection as the task `DevPulse-Weekly-News-Collection`, using the command `yarn news:sync`.
 - It is not a chatbot, and no local AI model is built. David owns the project and makes all product decisions.
-- Chunk 1 (repository and toolchain) is complete; the app is still the Next.js scaffold, and no DevPulse feature exists yet. Read `docs/IMPLEMENTATION_ROADMAP.md` before doing any work. David approved the planning baseline (BL-01) on 2026-11-03, and Chunk 1 is complete. Requirements live in `docs/REQUIREMENTS.md` and the design in `docs/ARCHITECTURE.md`.
+- Chunks 1 (repository and toolchain) and 2 (quality tooling) are complete; the app is still the Next.js scaffold, and no DevPulse feature exists yet. Read `docs/IMPLEMENTATION_ROADMAP.md` before doing any work. David approved the planning baseline (BL-01) on 2026-11-03, and Chunks 1 and 2 are complete. Requirements live in `docs/REQUIREMENTS.md` and the design in `docs/ARCHITECTURE.md`.
 
 ## Locked stack
 
