@@ -7,6 +7,7 @@
 **Revision:** r2, 2026-11-03. This revision applies David's review comments; see the Revision log at the end.
 
 **Goal:** Write the five planning documents that define what DevPulse is and the order it will be built in:
+
 - requirements
 - architecture
 - the chunked roadmap
@@ -16,6 +17,7 @@
 Nothing is initialized and no application code is written.
 
 **Architecture:** Documentation only.
+
 - `docs/REQUIREMENTS.md` is the source of truth for *what* gets built. It separates confirmed requirements from assumptions and from proposed items.
 - `docs/ARCHITECTURE.md` describes the proposed *how* at system level.
 - `docs/IMPLEMENTATION_ROADMAP.md` orders the work into 10 phases and 36 chunks. It uses the brief's chunk format plus conventions borrowed from the Web → Mobile Parity to-do.
@@ -31,12 +33,14 @@ The documents are written in dependency order, so each one can cite the IDs defi
 
 ## Global Constraints
 
-**Scope**
+Scope
+
 - Create exactly five files: `README.md`, `CLAUDE.md`, `docs/REQUIREMENTS.md`, `docs/ARCHITECTURE.md` and `docs/IMPLEMENTATION_ROADMAP.md`.
 - Do not run `git init` or `create-next-app`, install anything, create a `package.json`, or write application code.
 - Make no commits. The folder is not a git repository, and initializing one is roadmap task 1.1.
 
-**Verbatim values**
+Verbatim values
+
 - Task name: `DevPulse-Weekly-News-Collection`.
 - Schedule: "every Monday at 08:00 Malaysia time" (`Asia/Kuala_Lumpur`).
 - Command: `yarn news:sync`.
@@ -48,7 +52,7 @@ The documents are written in dependency order, so each one can cite the IDs defi
 **Requirement labels.** Every statement in the documents carries exactly one of these:
 
 | Label | Meaning |
-|---|---|
+| --- | --- |
 | **Confirmed (brief)** | Stated in David's brief |
 | **Assumption (A-NN)** | Inferred, not stated. David confirms it, and the documents list what depends on it |
 | **Proposed (AD-NN / P-NN)** | A technical decision or target, not a requirement. It may change in a chunk spec, unless the change touches cost, privacy, the stack or product behaviour. In that case it becomes an open decision (OD) |
@@ -56,10 +60,10 @@ The documents are written in dependency order, so each one can cite the IDs defi
 
 Nothing labelled Assumption or Proposed is ever written as confirmed.
 
-**Gate markers in the roadmap**
+Gate markers in the roadmap
 
 | Marker | Meaning | Used for |
-|---|---|---|
+| --- | --- | --- |
 | ⛔ in the chunk heading | Do not start until David's decision is recorded | Only when the decision changes what is built (or whether it is built), or involves cost, privacy, irreversible deletion or a significant architecture change. ⛔ chunks count as Blocked. |
 | `Decision before completion: OD-NN` on the Dependencies line | The chunk may start. Its Proposed default lives in one place, and David's decision must be recorded before the chunk is marked `[x]`. | Decisions that only change a value or a single switch |
 | `Decision preparation (no application code)` | The chunk prepares a decision for David | Chunk 16 only. Never counted as Blocked. |
@@ -71,7 +75,8 @@ Status markers are `[ ]` `[~]` `[x]` `[!]`.
 
 **Scheduling proof rule.** Unit tests in Chunks 7, 29 and 30 prove date maths and the generated task definition, and nothing more. They never count as proof that scheduling works. Chunks 29, 30 and 36 can be marked complete only with real Windows observations recorded on David's PC: the date, the command run and its real output.
 
-**Other rules**
+Other rules
+
 - Never claim a feature is implemented. The documents' status is "Planning — no application code yet".
 - Assume no paid service. Provider names appear only as candidates under OD-01 and Chunk 16.
 - Use the brief's exact chunk format: Goal / Difficulty / Dependencies / tasks with `Test:` and `Acceptance:` / Manual verification / Status. Each chunk has 1–5 tasks, and task IDs `N.M` are unique.
@@ -111,6 +116,7 @@ These failure modes are implied by the brief but no task's tests would otherwise
 **Files:** Create `docs/REQUIREMENTS.md`.
 
 **Interfaces:**
+
 - **Produces:**
   - functional requirement IDs `FR-COL-01…07`, `FR-SIM-01…11`, `FR-DATA-01…07`, `FR-DASH-01…13` and `FR-AUTO-01…09`;
   - technical and non-functional IDs `TR-NN` and `NFR-01…09`;
@@ -160,6 +166,7 @@ These failure modes are implied by the brief but no task's tests would otherwise
 **Files:** Create `docs/ARCHITECTURE.md`.
 
 **Interfaces:**
+
 - **Consumes:** the IDs from Task 1.
 - **Produces, for Tasks 3–5:**
   - `AD-01…AD-22` and `R-01…R-16`;
@@ -207,6 +214,7 @@ These failure modes are implied by the brief but no task's tests would otherwise
   - **Risks:** R-01…R-16 from Appendix E, each with its mitigation and owning chunk.
   - **External dependencies.**
 - [ ] **Step 6: Verify.**
+  <!-- markdownlint-disable-next-line MD038 -->
   - All eight components have a `## ` heading.
   - AD-02 lists its alternatives.
   - Every AD row has a Status.
@@ -217,6 +225,7 @@ These failure modes are implied by the brief but no task's tests would otherwise
 **Files:** Create `docs/IMPLEMENTATION_ROADMAP.md`.
 
 **Interfaces:**
+
 - **Consumes:** the IDs from Tasks 1–2.
 - **Produces:** chunk numbers 1–36 and their task IDs.
 
@@ -255,6 +264,7 @@ These failure modes are implied by the brief but no task's tests would otherwise
   - Requirement traceability (every FR/TR/NFR → chunks).
   - The change log.
 - [ ] **Step 5: Verify.**
+  <!-- markdownlint-disable-next-line MD038 -->
   - `^### Chunk \d+ — ` → 36 matches.
   - Goal, Difficulty, Dependencies, Manual verification and Status → 36 matches each.
   - Task IDs are unique, with 1–5 per chunk.
@@ -360,7 +370,7 @@ These failure modes are implied by the brief but no task's tests would otherwise
 
 Each chunk reads `N · Title · Difficulty · Depends on`, followed by its gates and short task headlines. The roadmap expands each task into `Test:` and `Acceptance:` lines.
 
-**Phase 1 — Project Foundation**
+Phase 1 — Project Foundation
 
 - **1 · Repository and toolchain initialization · Easy · none.** The roadmap as a whole starts only once David approves the planning documents.
   - 1.1 Local `git init` on `main`, with no remote (AD-20). Add `.gitignore` (node_modules, .next, `data/`, `.env*`, Playwright output), `.gitattributes` (LF line endings) and `.editorconfig`.
@@ -378,7 +388,7 @@ Each chunk reads `N · Title · Difficulty · Depends on`, followed by its gates
   - 3.3 Initialize shadcn/ui and render a Button.
   - 3.4 Update the folder layout in ARCHITECTURE to match.
 
-**Phase 2 — Database Foundation**
+Phase 2 — Database Foundation
 
 - **4 · SQLite and Drizzle setup · Easy · 3**
   - 4.1 Add `better-sqlite3` (AD-02, Proposed; confirmed in the Chunk 4 spec, with alternatives recorded), `drizzle-orm` and `drizzle-kit`. Confirm the native module loads on Windows.
@@ -392,7 +402,7 @@ Each chunk reads `N · Title · Difficulty · Depends on`, followed by its gates
   - 5.4 Indexes for the dashboard queries, and CHECK constraints on status and difficulty.
   - 5.5 Migration test: constraints and cascades hold, and no column stores raw article content.
 
-**Phase 3 — News Collection Pipeline**
+Phase 3 — News Collection Pipeline
 
 - **6 · News source configuration · Easy · 3**
   - 6.1 A typed source list with a zod schema, in `src/lib/config/sources.ts`.
@@ -427,7 +437,7 @@ Each chunk reads `N · Title · Difficulty · Depends on`, followed by its gates
   - 12.2 Tests with recorded fixtures.
   - Skipped if David approves no API source.
 
-**Phase 4 — Simplification Framework**
+Phase 4 — Simplification Framework
 
 - **13 · Simplification provider interface and output schema · Intermediate · 3.** Decision before completion: OD-08.
   - 13.1 Types `SimplificationInput` and `SimplifiedArticle`, and the interface `SimplificationProvider { name; simplify(input) }`.
@@ -448,7 +458,7 @@ Each chunk reads `N · Title · Difficulty · Depends on`, followed by its gates
   - 16.3 David records OD-01 and OD-02: approve, defer or decline.
   - The chunk is complete when David's decision is logged. It is never counted as Blocked. Its outcome unblocks Chunks 31 and 32.
 
-**Phase 5 — Dashboard Core**
+Phase 5 — Dashboard Core
 
 - **17 · Dashboard layout and navigation · Easy · 3**
   - 17.1 App shell and navigation.
@@ -464,7 +474,7 @@ Each chunk reads `N · Title · Difficulty · Depends on`, followed by its gates
   - 19.2 A safe original link, with text rendered as plain text.
   - 19.3 An "AI-simplified" label, plus pending and failed views.
 
-**Phase 6 — Dashboard Features**
+Phase 6 — Dashboard Features
 
 - **20 · Search and difficulty filtering · Intermediate · 18**
   - 20.1 Parameterized `LIKE` search.
@@ -483,7 +493,7 @@ Each chunk reads `N · Title · Difficulty · Depends on`, followed by its gates
   - 23.2 A page for each week.
   - 23.3 Boundary tests.
 
-**Phase 7 — Collection Operations and Retention**
+Phase 7 — Collection Operations and Retention
 
 - **24 · Run lock and overlap prevention · Intermediate · 11**
   - 24.1 Acquire the lock atomically. A second run exits with "already running".
@@ -542,7 +552,7 @@ Each chunk reads `N · Title · Difficulty · Depends on`, followed by its gates
   - 30.5 Only if OD-09 approves it: add the logon trigger and verify it by logging off and on.
   - Record each real check with its date, the `schtasks` or Task Scheduler History output, and the run records. History may first need "Enable All Tasks History". Any scenario that does not recover is recorded as a known limitation and reported to David, not hidden.
 
-**Phase 9 — AI Provider Integration**
+Phase 9 — AI Provider Integration
 
 This whole phase is ⛔ until Chunk 16 has a recorded approval. It may then move earlier, since its code depends only on Chunks 13–16.
 
@@ -556,7 +566,7 @@ This whole phase is ⛔ until Chunk 16 has a recorded approval. It may then move
   - 32.3 Go-ahead at execution time. A live run on at most 10 articles. David reviews readability and accuracy, and the prompt is tuned.
   - This is the chunk that completes FR-SIM-01…08.
 
-**Phase 10 — Reliability, Testing and Release Readiness**
+Phase 10 — Reliability, Testing and Release Readiness
 
 - **33 · Error handling and reliability hardening · Advanced · 26, 30**
   - 33.1 Failure-mode review: DB busy or locked, `data/` not writable, bad config, a crash mid-run, an unhandled rejection. In each case the run is marked failed and the failure is logged.
@@ -580,10 +590,10 @@ This whole phase is ⛔ until Chunk 16 has a recorded approval. It may then move
 
 ## Appendix B — Gates and open decisions
 
-**Part 1 — Gates**
+Part 1 — Gates
 
 | Gate type | Chunks | Why |
-|---|---|---|
+| --- | --- | --- |
 | ⛔ Blocked until decided | 12 (OD-03), 27 (OD-04, OD-05), 28 (OD-07), 31 (OD-01, OD-02), 32 (OD-01) | Chunk 12: the approved API defines the whole chunk, and its terms apply. Chunk 27: deletion cannot be undone. Chunk 28: an optional product feature, and it would let the dashboard start processes. Chunks 31 and 32: cost, and article content leaving the PC. |
 | Decision before completion | 13, 21 (OD-08) · 18 (OD-06) · 29 (OD-10, needed before 29.3) · 30 (OD-09) | Each decision changes only a value or a single switch, and the default lives in one place |
 | Decision preparation | 16 (OD-01, OD-02) · task 6.3 (OD-03 candidates) | Prepares the decision, writes no application code, and is never Blocked |
@@ -594,7 +604,7 @@ This whole phase is ⛔ until Chunk 16 has a recorded approval. It may then move
 Chunks unblocked in r2, with the reason for each:
 
 | Chunk | Was blocked on | Why it no longer is |
-|---|---|---|
+| --- | --- | --- |
 | 1 | Old OD-11, OD-12 | Node/Yarn choice became AD-18 (technical); the git remote became AD-20 plus a CLAUDE.md rule |
 | 6 | OD-03 | The candidate list is disabled until David approves it |
 | 13, 21 | OD-08 | Values live in one module, with no DB constraint |
@@ -607,7 +617,7 @@ The dependency on Chunk 27 was removed from Chunks 29 and 33, which do not need 
 **Part 2 — Open decisions** (OD-01…OD-10)
 
 | ID | Decision | Recommendation | Gate |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | OD-01 | AI provider, model, monthly budget cap, and permission to send article content | Decide in Chunk 16. No provider is assumed free. | ⛔ 31, 32 |
 | OD-02 | What content is used: (a) feed content, held in memory and re-fetched on retry; (b) also fetch the original page transiently; (c) store an excerpt temporarily until simplified | (a). Choosing (b) or (c) adds tasks to Chunks 15 and 31. | ⛔ 31 |
 | OD-03 | RSS/Atom sources and any public APIs, after checking their terms | The candidate list from 6.3 | ⛔ 12. Also needed before the first real-source run (11 or 36.2). |
@@ -624,7 +634,7 @@ The dependency on Chunk 27 was removed from Chunks 29 and 33, which do not need 
 **Assumptions** (not in the brief; David confirms them by approving the docs or in the decision log)
 
 | ID | Assumption | Basis | Affects |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | A-01 | "Previous calendar week" means Monday 00:00 to Sunday 23:59:59 MYT | The brief's "previous calendar week" and its MYT schedule | 7, 9, 23, 30 |
 | A-02 | A duplicate is the same canonical URL or the same source item. The same story from different outlets is kept as separate articles; stories are not grouped. | The brief's "prevent duplicate articles" | 10 |
 | A-03 | Single user, no login. Bookmarks and read state belong to that one user. | The brief's "personal Windows application" | 5, 22 |
@@ -632,7 +642,8 @@ The dependency on Chunk 27 was removed from Chunks 29 and 33, which do not need 
 | A-05 | Sources are in English. Nothing filters by language; the approved source list settles it. | Not in the brief; inferred from the "simple English" output | 6 (via OD-03) |
 | A-06 | Volume is tens to low hundreds of articles a week | A curated source list | 16 (cost), P-01 |
 
-**Proposed — not requirements**
+Proposed — not requirements
+
 - P-01, a performance target: dashboard pages respond in under 1 s locally with ≤ 5,000 articles. Measured in 34.1.
 - Database driver: AD-02.
 - Retry limit: AD-19.
@@ -645,7 +656,8 @@ The dependency on Chunk 27 was removed from Chunks 29 and 33, which do not need 
 
 All of these are **Proposed**.
 
-**Structure and data**
+Structure and data
+
 - **AD-01** One repository with two entry points, both sharing `src/lib`.
 - **AD-02** `better-sqlite3` as the SQLite driver.
   - Why: mature; synchronous transactions; Drizzle support.
@@ -660,13 +672,15 @@ All of these are **Proposed**.
 - **AD-06** Original text is kept in memory only, and retries re-fetch it. Subject to OD-02.
 - **AD-07** Duplicate-detection keys: canonical URL and source item.
 
-**Dashboard and scheduling**
+Dashboard and scheduling
+
 - **AD-08** The dashboard uses Server Components and Server Actions, with no REST layer, the Node runtime, and a bind to 127.0.0.1.
 - **AD-09** Overlap is prevented by a database lock plus Task Scheduler's IgnoreNew.
 - **AD-10** The next scheduled run is computed from the schedule, and an overdue warning is shown when it is missed.
 - **AD-11** Task Scheduler settings, as listed in task 29.2.
 
-**Tooling and project conventions**
+Tooling and project conventions
+
 - **AD-12** Search uses `LIKE`.
 - **AD-13** Tests make no live network calls.
 - **AD-14** Logs are kept in the database and in per-run files.
@@ -682,7 +696,7 @@ All of these are **Proposed**.
 ## Appendix E — Key risks (R-01…R-16)
 
 | ID | Risk | Chunk(s) |
-|---|---|---|
+| --- | --- | --- |
 | R-01 | Feeds keep a limited history, so a long-missed week may be unrecoverable | 30 |
 | R-02 | Feed dates are missing or wrong | 9 |
 | R-03 | Copyright and terms for sources and the provider | 6, 16 |

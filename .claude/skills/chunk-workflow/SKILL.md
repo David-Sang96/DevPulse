@@ -147,8 +147,13 @@ Ask for explicit approval of both documents. If David asks for changes, revise t
 
 1. **Checks.** Run whichever of these exist: `yarn check` (or `yarn typecheck`, `yarn lint`, `yarn lint:md` and `yarn test`), and `yarn test:e2e` when UI or flows changed. Before Chunk 2, run whatever checks exist and say which ones are missing. Read the real output; a check that fails is not done.
 2. **Code review, as OD-15 allows.** Check OD-15 with the Decision status rule.
-   - **Unresolved (the default):** do not run any separate AI review command, agent or subagent. Do a structured self-review of the diff against the spec, the plan, the requirement IDs and `CLAUDE.md`, and label it in the report as a **self-review, not independent**.
+   - **Unresolved (the default):** do not run any separate AI review command, agent or subagent. That includes `/code-review`, reviewer subagents and any other AI review tool, and `CLAUDE.md`'s "Pre-PR code review" section stays inactive. Do a structured self-review of the diff against the spec, the plan, the requirement IDs and `CLAUDE.md`, and label it in the report as a **self-review, not independent**.
    - **Resolved:** use only the review option David chose, sending only what that option allows.
+     - **`/code-review` in two sections.** This applies only when OD-15 is Resolved and David's option allows the `/code-review` skill named in `CLAUDE.md`'s "Pre-PR code review" section. Ask it for two separate sections instead of one blended list, and never merge or rerank findings across them:
+       - **Standards:** the diff against the `CLAUDE.md` conventions and the `docs/ARCHITECTURE.md` decisions.
+       - **Spec:** the diff against this chunk's spec and plan, and the requirement IDs it touches. Run it only if David's option allows docs to be sent. If it doesn't, cover this section by self-review and say so in the report.
+       - Each section ends with its own worst-issue line. Triage (item 3) and `CLAUDE.md`'s severity rules (fix critical and high findings; disclose medium and low) apply to each section separately.
+       - Never use `ultra`, `--comment`, `--post` or `--fix`.
    - Whatever the option, never let a reviewer read or receive `.env.local`, databases, backups, logs, anything in `data/`, or real article content.
 3. **Triage.** Fix each confirmed issue test-first, then rerun the checks. For a finding you decline, record your reason. Review again after the fixes.
    - If issues remain after two review rounds, stop and report them to David.

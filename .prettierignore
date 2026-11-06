@@ -1,0 +1,5 @@
+*.md
+.yarn/
+yarn.lock
+public/
+.claude/
