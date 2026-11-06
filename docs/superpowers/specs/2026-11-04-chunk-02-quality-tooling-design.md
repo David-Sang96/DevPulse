@@ -1,6 +1,6 @@
 # Chunk 2 — Quality tooling and test runners: design
 
-**Status:** Approved by David on 2026-11-04 (chunk-workflow Step 4), after the Step 4 self-review revisions (H1, H2, M1–M3). Revised the same day after G-2a to add `vite` as a fifth devDependency (D-6, AD-41). The revision awaits David's review before G-2b.
+**Status:** Approved by David on 2026-11-04 (chunk-workflow Step 4), after the Step 4 self-review revisions (H1, H2, M1–M3). Revised the same day after G-2a to add `vite` as a fifth devDependency (D-6, AD-41). Revised again to run the E2E tests in the installed Google Chrome (D-7, AD-42). The D-7 revision awaits David's review.
 
 **Roadmap:** [Chunk 2](../../IMPLEMENTATION_ROADMAP.md#chunk-2--quality-tooling-and-test-runners). **Plan:** [2026-11-04-chunk-02-quality-tooling.md](../plans/2026-11-04-chunk-02-quality-tooling.md).
 
@@ -73,9 +73,10 @@ Acceptance criteria are quoted from the roadmap. The one change of wording is in
 ### 2.3 Playwright
 
 - **Config:** `playwright.config.ts`:
-  - `testDir: "tests/e2e"`, one project (Chromium), `reporter: "list"`;
+  - `testDir: "tests/e2e"`, one project (Chromium engine, run in the installed Chrome through `channel: "chrome"`, see "Browser" below), `reporter: "list"`;
   - `use.baseURL` = `http://127.0.0.1:3100`, built from the named constant `E2E_PORT = 3100`;
   - `webServer.command` = `yarn build && yarn start --port 3100`, with `url` set to the same address and `reuseExistingServer: false`.
+- **Browser (D-7).** The Chromium project uses the installed Google Chrome (`channel: "chrome"`): version 156.0.8078.80 at `C:\Program Files\Google\Chrome\Application\chrome.exe` when checked on 2026-11-04. It is still one Chromium-engine project, as the roadmap's "Chromium only" asks, and no browser download is planned in Chunk 2. **Fallback:** if the first `yarn test:e2e` run can't launch Chrome, stop and ask David for a fresh G-2c go-ahead. Nothing is downloaded on our own.
 - **Why a production server on port 3100.** It never clashes with David's `yarn dev` on port 3000. It never reuses an unknown server: an Expo dev server was seen on this PC during Chunk 1. If the port is busy, Playwright fails loudly instead of testing the wrong app. Running through `yarn` keeps `.env.yarn`, so Next.js telemetry stays off (AD-35), and `yarn start` keeps `--hostname 127.0.0.1`.
 - **Smoke test:** `tests/e2e/home.spec.ts` opens `/` and checks the exact title `Create Next App`. This is David's answer (2026-11-04): the app is unchanged in Chunk 2, and an exact title also catches a different app answering. Chunk 17 changes the title and updates this test.
 - **ESLint:** `eslint.config.mjs` adds `playwright-report/**` and `test-results/**` to its global ignores. Both folders are already gitignored.
@@ -102,6 +103,7 @@ Acceptance criteria are quoted from the roadmap. The one change of wording is in
 - **AD-39**, `typecheck` = `next typegen && tsc --noEmit` (decision log, 2026-11-04; D-4).
 - **AD-40**, one formatting-only commit for existing code that fails `yarn format:check` (decision log, 2026-11-04; D-5).
 - **AD-41**, the five devDependencies and their exact versions (decision log, 2026-11-04; D-6).
+- **AD-42**, the E2E tests run in the installed Google Chrome (decision log, 2026-11-04; D-7).
 
 BL-01 and AD-34 don't affect this chunk.
 
@@ -139,6 +141,13 @@ David approved this one after G-2a on 2026-11-04 ("David approves adding `vite@8
   - **why `vite` is needed:** Vitest 5 declares `vite` as a non-optional peer dependency (`peerDependenciesMeta.vite.optional: false`, accepted range `^6.4.0 || ^7.0.0 || ^8.0.0`). Vitest uses Vite to transform and run test files, so the peer must be installed. `vite@8.3.5` is MIT-licensed and needs Node.js `^20.19.0 || >=22.12.0`, which 24.13.0 meets;
   - recorded as AD-41.
 
+David chose this one after the read-only browser investigation on 2026-11-04 (question "E2E browser": "Installed Chrome (Recommended)"):
+
+- **D-7, E2E browser:** Playwright runs the E2E tests in the installed Google Chrome (`channel: "chrome"`).
+  - **Why:** The cached Chromium revisions are 1223 and 1228. The exact revision required by Playwright 1.64.1 has not yet been verified. Chunk 2 uses installed Google Chrome, so no browser download is planned.
+  - **Fallback:** if the first `yarn test:e2e` run can't launch Chrome, stop and ask David for a fresh G-2c go-ahead.
+  - recorded as AD-42.
+
 ### Open questions for David
 
 David answered Q1–Q3 on 2026-11-04, when he approved this spec and the plan: all three are **approved**.
@@ -170,7 +179,7 @@ David answered Q1–Q3 on 2026-11-04, when he approved this spec and the plan: a
 | --- | --- | --- |
 | G-2a | 2.1 | Registry metadata only: `npm view <package> version` for the four packages, plus each one's README to check for telemetry. Nothing is downloaded or run. **Done 2026-11-04.** It also found Vitest's `vite` peer dependency, and `vite` was then looked up the same way (D-6). |
 | G-2b | 2.1 | `yarn add --dev --exact` of the five exact versions in D-6 (AD-41), in one step (downloads the packages and their dependencies) |
-| G-2c | 2.3 | Only if the installed Playwright needs a Chromium build that isn't already in `%LOCALAPPDATA%\ms-playwright` (today: `chromium-1223` and `chromium-1228`, with headless shells): `yarn playwright install chromium` |
+| G-2c | 2.3 | **Not planned under D-7** (installed Google Chrome, so no browser download). Only as a fallback, if the first `yarn test:e2e` run can't launch Chrome: stop and ask David for a fresh go-ahead for `yarn playwright install chromium`. The cached Chromium revisions are 1223 and 1228. The exact revision required by Playwright 1.64.1 has not yet been verified. |
 
 **Risks:**
 
@@ -181,7 +190,7 @@ David answered Q1–Q3 on 2026-11-04, when he approved this spec and the plan: a
 - **N4, `test.env` not reaching `TZ` in time.** Node resets its time-zone cache when `process.env.TZ` is assigned, and the time-zone test proves it. If it fails, fall back to a per-project setup file that sets `TZ`, which still lives in the config, and record it.
 - **N5, port 3100 busy.** `reuseExistingServer: false` makes Playwright fail loudly. Check the port before the first run.
 - **N6, `next build` while `yarn dev` runs.** Next.js 16 keeps dev output in `.next/dev`, apart from the build. Verify once, with David's dev server stopped first if it is running.
-- **N7, Playwright browser revision.** A missing revision needs G-2c.
+- **N7, installed Chrome instead of Playwright's own Chromium (D-7).** Installed Chrome is not Playwright's bundled Chromium, and it updates itself, so Chrome might not launch under Playwright 1.64.1, or a Chrome update could change E2E results. The Chrome version used is recorded in the verification note. If the first run can't launch Chrome, stop and ask for a fresh G-2c go-ahead.
 - **N8, untracked third-party files: resolved** (Q4 closed; David removed them on 2026-11-04).
 - **N9, automatic AI review by the `security-guidance` plugin.** Its Stop diff review and its commit and push reviewer send code to an external model, which OD-15 forbids while it is Pending. Its local pattern warnings send nothing.
   - **David's decision (2026-11-04):** the plugin is off for DevPulse through `.claude/settings.local.json`, and the user-level setting stays on.
@@ -211,4 +220,4 @@ In a fresh terminal of David's own (PowerShell), run each of these once and read
 - `yarn check`
 - `yarn verify`
 
-Record the date, each command, its exit code and a short excerpt in the italic note under Manual verification. Also record what was *not* checked, for example cmd.exe if only PowerShell was used.
+Record the date, each command, its exit code, a short excerpt, and the Chrome version that `yarn test:e2e` used, in the italic note under Manual verification. Also record what was *not* checked, for example cmd.exe if only PowerShell was used.

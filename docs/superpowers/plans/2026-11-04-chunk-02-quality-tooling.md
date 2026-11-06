@@ -1,6 +1,6 @@
 # Chunk 2 — Quality tooling and test runners: implementation plan
 
-> **Execution:** inline in this session, task by task, by the assistant itself. While OD-15 is unresolved, no implementer or reviewer subagents are dispatched (chunk-workflow skill, Steps 3 and 6). Steps use checkbox (`- [ ]`) syntax. David approved this plan and its spec on 2026-11-04, after the Step 4 self-review revisions. Each go-ahead (G-2a, G-2b, G-2c) still needs his separate approval when it comes up. G-2a ran on 2026-11-04. The plan was then revised to add `vite` (spec D-6, AD-41), and that revision awaits David's review before G-2b.
+> **Execution:** inline in this session, task by task, by the assistant itself. While OD-15 is unresolved, no implementer or reviewer subagents are dispatched (chunk-workflow skill, Steps 3 and 6). Steps use checkbox (`- [ ]`) syntax. David approved this plan and its spec on 2026-11-04, after the Step 4 self-review revisions. Each go-ahead (G-2a, G-2b, G-2c) still needs his separate approval when it comes up. G-2a ran on 2026-11-04. The plan was then revised to add `vite` (spec D-6, AD-41), and again to run the E2E tests in the installed Google Chrome (spec D-7, AD-42). The D-7 revision awaits David's review.
 
 **Goal:** `yarn typecheck`, `lint`, `lint:md`, `format`, `format:check`, `test`, `test:e2e`, `check` and `verify` all work and pass on the clean repository.
 
@@ -13,7 +13,7 @@
 ## Global constraints
 
 - **Branch:** `chunk-02-quality-tooling`, made from `main` at `23f9134`, which contains the restored CLAUDE.md sections. No remote changes, no push, no merge.
-- **Downloads:** only at G-2a, G-2b and G-2c (spec section 5), each with David's go-ahead at that moment.
+- **Downloads:** only at G-2a and G-2b (spec section 5), each with David's go-ahead at that moment. Chunk 2 uses the installed Google Chrome (D-7), so no browser download is planned. G-2c is only a fallback, with a fresh go-ahead.
 - **Versions:** each of the five new devDependencies is pinned exactly (`--exact`), at the version in spec D-6 (AD-41).
 - **Ports:** E2E uses `127.0.0.1:3100` only (`E2E_PORT = 3100`). `yarn dev` keeps port 3000.
 - **Telemetry:** every Next.js call goes through `yarn` (AD-35).
@@ -158,7 +158,7 @@
 
 - Produces: the `test:e2e` script, and `baseURL` `http://127.0.0.1:3100` for later E2E specs.
 
-- [ ] **Step 1: Browser check.** Read `node_modules/playwright-core/browsers.json` for the Chromium and headless-shell revisions. If both are already in `%LOCALAPPDATA%\ms-playwright`, skip G-2c. Otherwise, **G-2c (go-ahead):** `yarn playwright install chromium`.
+- [ ] **Step 1: Browser check (D-7).** Run `(Get-Item 'C:\Program Files\Google\Chrome\Application\chrome.exe').VersionInfo.ProductVersion` → it prints a Chrome version. Record it (156.0.8078.80 when checked on 2026-11-04). Nothing is downloaded and no browser is installed. G-2c is only a fallback: if the first run in Step 5 can't launch Chrome, stop and ask David for a fresh go-ahead for `yarn playwright install chromium`.
 - [ ] **Step 2: Port check.** `Get-NetTCPConnection -LocalPort 3100 -State Listen` → nothing.
 - [ ] **Step 3: Write the failing test.** `tests/e2e/home.spec.ts`:
 
@@ -171,15 +171,15 @@
   });
   ```
 
-  Create a minimal `playwright.config.ts` with only `testDir: "tests/e2e"` and the Chromium project, with no `baseURL` and no `webServer`, so Playwright never picks up the Vitest files. Add `"test:e2e": "playwright test"` and run `yarn test:e2e` → exits ≠0 because `page.goto("/")` has no base URL to navigate to.
+  Create a minimal `playwright.config.ts` with only `testDir: "tests/e2e"` and the Chromium project (with `channel: "chrome"`, so the run uses the installed Chrome), with no `baseURL` and no `webServer`, so Playwright never picks up the Vitest files. Add `"test:e2e": "playwright test"` and run `yarn test:e2e` → exits ≠0 because `page.goto("/")` has no base URL to navigate to.
 - [ ] **Step 4: Configure Playwright.** Complete `playwright.config.ts` with `defineConfig`:
   - ``E2E_PORT = 3100`` and ``E2E_BASE_URL = `http://127.0.0.1:${E2E_PORT}` ``;
   - `testDir: "tests/e2e"`, `reporter: "list"`, `use: { baseURL: E2E_BASE_URL }`;
-  - `projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }]`;
+  - `projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], channel: "chrome" } }]`;
   - ``webServer: { command: `yarn build && yarn start --port ${E2E_PORT}`, url: E2E_BASE_URL, reuseExistingServer: false, timeout: 180_000 }``.
 
   Add `"playwright-report/**"` and `"test-results/**"` to `globalIgnores` in `eslint.config.mjs`.
-- [ ] **Step 5: Run it, expecting a pass.** `yarn test:e2e` exits 0 with one passed test. Then change the expected title to `"Wrong title"` → exits ≠0. Restore it → exits 0. After each run, `Get-NetTCPConnection -LocalPort 3100 -State Listen` → nothing (spec N11: no leftover `next start`).
+- [ ] **Step 5: Run it, expecting a pass.** `yarn test:e2e` exits 0 with one passed test; record it next to the Chrome version from Step 1. Then change the expected title to `"Wrong title"` → exits ≠0. Restore it → exits 0. After each run, `Get-NetTCPConnection -LocalPort 3100 -State Listen` → nothing (spec N11: no leftover `next start`).
 - [ ] **Step 6: Separation and cleanliness.** `yarn test` output names no `tests/e2e` file. `yarn typecheck` and `yarn lint` exit 0. `git status --porcelain` shows only this task's files (`test-results/` stays ignored).
 - [ ] **Step 7: Commit:** `git add playwright.config.ts tests/e2e/home.spec.ts package.json eslint.config.mjs`, then `test: configure Playwright smoke test (Chunk 2, 2.3)`.
 
