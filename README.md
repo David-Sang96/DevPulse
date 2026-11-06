@@ -2,7 +2,7 @@
 
 DevPulse is a local-first developer news dashboard for a personal Windows PC. Every Monday morning it collects the previous week's developer news from RSS/Atom feeds and permitted public APIs. It then rewrites each article in simple English, so that junior developers can understand it.
 
-> **Status: Chunk 1 complete (repository and toolchain) — no DevPulse features yet.** See the [implementation roadmap](docs/IMPLEMENTATION_ROADMAP.md). Real article simplification needs an AI provider, and David has not chosen one yet. Until then, DevPulse will be able to collect articles but not simplify them. Real collection also waits until the two-month retention is implemented, verified and switched on.
+> **Status: Chunk 1 complete (repository and toolchain); Chunk 2 (quality tooling) is built and awaits David's manual verification — no DevPulse features yet.** See the [implementation roadmap](docs/IMPLEMENTATION_ROADMAP.md). Real article simplification needs an AI provider, and David has not chosen one yet. Until then, DevPulse will be able to collect articles but not simplify them. Real collection also waits until the two-month retention is implemented, verified and switched on.
 
 ## Main goals
 
@@ -122,4 +122,24 @@ This is what DevPulse will need once it is built:
 
 - The planning documents were written on 2026-11-03 and revised to r4 the same day. David approved them as the planning baseline (BL-01) on 2026-11-03.
 - A local git repository (no remote) holds the baseline and Chunk 1: a Next.js 16.4.4 scaffold, Node.js 24.13.0 and Yarn 4.12.0 pinned, telemetry off, and the dev server bound to 127.0.0.1. No DevPulse feature exists yet.
+- Chunk 2 (quality tooling) is built and committed on the branch `chunk-02-quality-tooling`, which is not merged into `main`: Prettier, markdownlint, Vitest, Playwright, and the scripts `yarn check` and `yarn verify`. The automated checks pass on this PC, but David's own manual verification is still pending, so the chunk is still In progress. The Chunk 2 note in the [roadmap](docs/IMPLEMENTATION_ROADMAP.md) lists what was not checked and the known limitations.
 - The roadmap has 10 phases and 36 chunks. 5 chunks are blocked until David makes a decision. The open decisions (OD-01…OD-19) and assumptions (A-01…A-06) are listed in [REQUIREMENTS.md](docs/REQUIREMENTS.md); none has been decided yet.
+
+## Development commands
+
+These commands work now, in the development folder. Run `yarn check`, and `yarn verify` (which adds the browser test), before calling work done.
+
+| Command | What it does |
+| --- | --- |
+| `yarn dev`, `yarn start` | The Next.js dashboard, bound to `127.0.0.1` only. |
+| `yarn build` | A production build. |
+| `yarn typecheck` | `next typegen && tsc --noEmit`: generates the route types, then type-checks, so it also works on a clean checkout. |
+| `yarn lint` | ESLint for the code. |
+| `yarn lint:md` | markdownlint for every Markdown file (line length is not checked). |
+| `yarn format`, `yarn format:check` | Prettier rewrites, or only checks, code and config. Markdown is excluded, because markdownlint governs it. |
+| `yarn test` | Vitest in two projects: `unit` runs `src/**/*.test.ts` in UTC, and `tz-kuala-lumpur` runs `src/**/*.tz.test.ts` in `Asia/Kuala_Lumpur`. `TZ` is set in `vitest.config.mts`, never in the shell. |
+| `yarn test:e2e` | A Playwright smoke test: it builds the production app, serves it on `127.0.0.1:3100`, and runs one Chromium project in the installed Google Chrome (`channel: "chrome"`), so no browser is downloaded on this PC. |
+| `yarn check` | The Node version check, `typecheck`, `lint`, `lint:md` and `test`, in that order, stopping at the first failure. |
+| `yarn verify` | `yarn check`, then `yarn test:e2e`. |
+
+`yarn news:sync` does not exist yet; it arrives in Chunk 3. Everything above has been run only on David's Windows 11 PC (Node.js 24.13.0, Yarn 4.12.0, Google Chrome 156.0.8078.80). Passing automated checks is not proof of Windows Task Scheduler behaviour or of any future collection workflow.

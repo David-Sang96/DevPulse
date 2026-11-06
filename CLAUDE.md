@@ -20,11 +20,11 @@ Any change to this stack needs a clear technical reason and David's approval.
 
 ## Commands
 
-**Available now:** `yarn dev` and `yarn start` (both bound to `127.0.0.1`), `yarn build` and `yarn lint`. Type checks run with `yarn tsc --noEmit` until Chunk 2 adds `yarn typecheck`.
+**Available now:** `yarn dev` and `yarn start` (both bound to `127.0.0.1`), `yarn build`, `yarn lint`, `yarn typecheck`, `yarn lint:md`, `yarn format` and `yarn format:check`, `yarn test` and `yarn test:e2e`, `yarn check` (Node version check, typecheck, lint, `lint:md` and unit tests) and `yarn verify` (`check` plus `test:e2e`).
 
 Planned, not available yet:
 
-- **Chunks 2–3:** `yarn check` (Node version check, typecheck, lint, `lint:md` and unit tests), `yarn verify` (`check` plus `test:e2e`), `yarn test`, `yarn test:e2e`, `yarn typecheck`, `yarn lint:md`, `yarn format` and `yarn news:sync`.
+- **Chunk 3:** `yarn news:sync`.
 - **Chunk 4:** `yarn db:generate` and `yarn db:migrate`.
 - **Chunk 18:** `yarn db:seed`.
 - **Chunk 27:** `yarn news:cleanup`.
